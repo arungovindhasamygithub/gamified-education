@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+    <h2>Review Student Uploads</h2>
+    <div class="row mt-4">
+        {% for sub in submissions %}
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <img src="{{ sub.proof_image.url }}" class="card-img-top" alt="Proof" style="height:200px; object-fit:cover;">
+                
+                <div class="card-body">
+                    <h5>{{ sub.event.title }}</h5>
+                    <p>Student: <b>{{ sub.student.username }}</b></p>
+                    
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="submission_id" value="{{ sub.id }}">
+                        
+                        <label>Points to Award:</label>
+                        <input type="number" name="points" value="{{ sub.event.max_points }}" class="form-control mb-3">
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="action" value="approve" class="btn btn-success w-50">Approve</button>
+                            <button type="submit" name="action" value="reject" class="btn btn-danger w-50">Reject</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No new images to review!</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

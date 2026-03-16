@@ -2,87 +2,166 @@
 
 {% block title %}Register | EcoQuest{% endblock %}
 
+{% block extra_css %}
+<style>
+    .reg-container {
+        padding: 40px 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .reg-card {
+        background: var(--brand-white);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(10, 36, 114, 0.05);
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: var(--text-main);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background-color: #f8fafc;
+        font-weight: 500;
+        width: 100%;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #fff;
+        border-color: var(--brand-navy);
+        box-shadow: 0 0 0 4px rgba(10, 36, 114, 0.1);
+        outline: none;
+    }
+
+    .strength-meter {
+        height: 6px;
+        background-color: #e2e8f0;
+        border-radius: 10px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+
+    .strength-progress {
+        height: 100%;
+        width: 0;
+        transition: all 0.4s ease;
+    }
+
+    .btn-reg {
+        background-color: var(--brand-navy);
+        color: white;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-reg:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+
+    .helper-text {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 6px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-12 flex justify-center">
-    <div class="card w-full max-w-2xl shadow-lg border border-gray-200 rounded-xl bg-white p-8">
-        <h2 class="text-center text-3xl font-bold text-[#1b4332] mb-8 tracking-tight">System Registration</h2>
-        
+<div class="reg-container">
+    <div class="reg-card">
+        <div class="text-center mb-5">
+            <h2 style="color: var(--brand-navy); font-weight: 800; letter-spacing: -0.5px;">System Registration</h2>
+            <p class="text-muted">Create your academic profile to begin</p>
+        </div>
+
         {% if form.errors %}
-        <div class="alert alert-danger bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6">
-            Please correct the validation errors below.
+        <div class="alert alert-danger mb-4">
+            Validation protocol failed. Please review the highlighted fields.
         </div>
         {% endif %}
-        
+
         <form method="post" class="row g-4">
             {% csrf_token %}
             
             <div class="col-md-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
-                <input type="text" name="username" required placeholder="Select a system ID" 
-                       value="{{ request.POST.username }}" minlength="3" maxlength="150"
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition">
-                <small class="text-xs text-gray-500 mt-1 block">Minimum 3 characters</small>
+                <label class="form-label">Username</label>
+                <input type="text" name="username" required placeholder="User ID" 
+                       value="{{ request.POST.username }}" class="form-control">
+                <div class="helper-text">Minimum 3 alphanumeric characters</div>
             </div>
-            
+
             <div class="col-md-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+                <label class="form-label">Email Address</label>
                 <input type="email" name="email" required placeholder="user@institution.edu" 
-                       value="{{ request.POST.email }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition">
+                       value="{{ request.POST.email }}" class="form-control">
             </div>
-            
+
             <div class="col-md-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Account Role</label>
-                <select name="role" required class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition bg-white">
+                <label class="form-label">Account Role</label>
+                <select name="role" required class="form-select">
                     <option value="student" {% if request.POST.role == 'student' %}selected{% endif %}>Student</option>
                     <option value="teacher" {% if request.POST.role == 'teacher' %}selected{% endif %}>Faculty / Teacher</option>
                 </select>
             </div>
-            
+
             <div class="col-md-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Institution</label>
-                <input type="text" name="school" required placeholder="Primary affiliated institution" 
-                       value="{{ request.POST.school }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition">
+                <label class="form-label">Institution</label>
+                <input type="text" name="school" required placeholder="University Name" 
+                       value="{{ request.POST.school }}" class="form-control">
             </div>
-            
+
             <div class="col-md-12">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Academic Level / Year</label>
-                <input type="text" name="grade" required placeholder="e.g., Final Year B.Tech" 
-                       value="{{ request.POST.grade }}"
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition">
+                <label class="form-label">Academic Level / Year</label>
+                <input type="text" name="grade" required placeholder="e.g., Sophomore, Year 3, Senior" 
+                       value="{{ request.POST.grade }}" class="form-control">
             </div>
 
             <div class="col-md-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Security Key (Password)</label>
-                <input type="password" name="password1" required placeholder="Create strong password" 
-                       minlength="8" id="password1"
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition">
-                <small class="text-xs text-gray-500 mt-1 block">Minimum 8 characters</small>
-                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-                    <div class="bg-red-500 h-1.5 rounded-full transition-all duration-300" id="passwordStrength" style="width: 0%"></div>
+                <label class="form-label">Security Key (Password)</label>
+                <input type="password" name="password1" required placeholder="••••••••" 
+                       id="password1" class="form-control">
+                <div class="strength-meter">
+                    <div id="passwordStrength" class="strength-progress"></div>
                 </div>
             </div>
-            
+
             <div class="col-md-6">
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Verify Security Key</label>
-                <input type="password" name="password2" required placeholder="Confirm password" 
-                       id="password2"
-                       class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#1b4332] focus:border-transparent transition">
-                <small class="text-xs font-semibold mt-1 block h-4" id="passwordMatch"></small>
+                <label class="form-label">Verify Security Key</label>
+                <input type="password" name="password2" required placeholder="••••••••" 
+                       id="password2" class="form-control">
+                <div id="passwordMatch" class="helper-text fw-bold" style="height: 15px;"></div>
             </div>
-            
-            <div class="col-12 mt-6">
-                <button type="submit" class="w-full bg-[#1b4332] text-white font-bold py-3 px-4 rounded hover:bg-[#143628] transition shadow-md border border-[#1b4332]">
+
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn-reg w-100">
                     Initialize Profile
                 </button>
             </div>
         </form>
-        
-        <div class="mt-8 text-center pt-6 border-t border-gray-100">
-            <p class="text-gray-600 text-sm">
+
+        <div class="text-center mt-5 pt-4 border-top">
+            <p class="text-muted small">
                 Already hold active credentials? 
-                <a href="{% url 'login' %}" class="text-[#1b4332] font-bold hover:underline">Authenticate Here</a>
+                <a href="{% url 'login' %}" style="color: var(--brand-navy); font-weight: 700; text-decoration: none;">Authenticate Here</a>
             </p>
         </div>
     </div>
@@ -95,40 +174,36 @@ document.getElementById('password1').addEventListener('input', function() {
     let strength = 0;
     
     if (password.length >= 8) strength += 25;
-    if (password.match(/[a-z]+/)) strength += 25;
     if (password.match(/[A-Z]+/)) strength += 25;
     if (password.match(/[0-9]+/)) strength += 25;
     if (password.match(/[$@#&!]+/)) strength += 25;
     
-    strength = Math.min(strength, 100);
     strengthBar.style.width = strength + '%';
     
-    if (strength < 25) {
-        strengthBar.style.backgroundColor = '#ef4444'; // Tailwind red-500
-    } else if (strength < 50) {
-        strengthBar.style.backgroundColor = '#f59e0b'; // Tailwind amber-500
-    } else if (strength < 75) {
-        strengthBar.style.backgroundColor = '#3b82f6'; // Tailwind blue-500
+    if (strength < 50) {
+        strengthBar.style.backgroundColor = '#740f28'; 
+    } else if (strength < 100) {
+        strengthBar.style.backgroundColor = '#0ea5e9'; 
     } else {
-        strengthBar.style.backgroundColor = '#10b981'; // Tailwind emerald-500
+        strengthBar.style.backgroundColor = '#059669'; 
     }
 });
 
 document.getElementById('password2').addEventListener('input', function() {
-    const password1 = document.getElementById('password1').value;
-    const password2 = this.value;
-    const matchMsg = document.getElementById('passwordMatch');
+    const p1 = document.getElementById('password1').value;
+    const p2 = this.value;
+    const msg = document.getElementById('passwordMatch');
     
-    if (password2.length > 0) {
-        if (password1 === password2) {
-            matchMsg.style.color = '#10b981';
-            matchMsg.innerHTML = '✓ Keys verify';
+    if (p2.length > 0) {
+        if (p1 === p2) {
+            msg.style.color = '#059669';
+            msg.innerHTML = '✓ SECURITY KEYS MATCH';
         } else {
-            matchMsg.style.color = '#ef4444';
-            matchMsg.innerHTML = '✗ Keys do not verify';
+            msg.style.color = '#740f28';
+            msg.innerHTML = '✗ KEYS DO NOT MATCH';
         }
     } else {
-        matchMsg.innerHTML = '';
+        msg.innerHTML = '';
     }
 });
 </script>

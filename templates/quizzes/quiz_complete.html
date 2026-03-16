@@ -3,89 +3,233 @@
 
 {% block title %}Assessment Results | EcoQuest{% endblock %}
 
+{% block extra_css %}
+<style>
+    :root {
+        --brand-navy: #0A2472;
+        --brand-crimson: #740f28;
+    }
+
+    body { background-color: #f8fafc; }
+
+    .results-card {
+        background: white;
+        border-radius: 30px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 20px 50px rgba(10, 36, 114, 0.08);
+        overflow: hidden;
+    }
+
+    .debrief-header {
+        background: var(--brand-navy);
+        padding: 40px 20px;
+        color: white;
+        text-align: center;
+        position: relative;
+    }
+
+    .rank-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        border: 2px solid rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        background: rgba(255,255,255,0.1);
+    }
+
+    .yield-display {
+        font-size: 6rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -2px;
+        color: var(--brand-navy);
+    }
+
+    .metric-box {
+        padding: 25px;
+        text-align: center;
+        border-right: 1px solid #f1f5f9;
+    }
+
+    .metric-box:last-child { border-right: none; }
+
+    .progress-track-large {
+        height: 12px;
+        background-color: #f1f5f9;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-fill-large {
+        height: 100%;
+        background: linear-gradient(90deg, var(--brand-navy), #3b82f6);
+        border-radius: 10px;
+        width: 0%;
+        transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-return {
+        background: var(--brand-navy);
+        color: white;
+        padding: 16px 40px;
+        border-radius: 15px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+
+    .btn-return:hover {
+        background: #000;
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    #motivationalMessage {
+        border-radius: 15px;
+        font-weight: 700;
+        padding: 20px;
+        margin-top: 30px;
+        transition: all 0.5s ease;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-12 max-w-2xl">
-    <div class="card shadow-2xl border-0 bg-white rounded-xl overflow-hidden">
-        
-        <div class="bg-slate-800 text-white px-6 py-5 border-b-4 border-[#1b4332] text-center">
-            <h1 class="text-2xl font-bold tracking-widest uppercase m-0">Assessment Complete</h1>
-        </div>
-        
-        <div class="p-10 bg-gray-50 border-b border-gray-200 text-center">
-            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Total Yield</div>
-            <div class="text-7xl font-bold text-[#1b4332] tabular-nums" id="scoreDisplay">0</div>
-            <div class="text-sm font-semibold text-gray-600 mt-2 tracking-wider">POINTS ACQUIRED</div>
+<div class="container py-5 max-w-2xl">
+    <div class="results-card">
+        <div class="debrief-header">
+            <div class="rank-circle">
+                <span class="small fw-800 opacity-75">LVL</span>
+                <span class="h4 m-0 fw-800">{{ new_level|default:0 }}</span>
+            </div>
+            <span class="admin-badge mb-3" style="background: rgba(255,255,255,0.2); color: white; border: 0;">Protocol Complete</span>
+            <h1 class="fw-800 text-uppercase tracking-tighter m-0">Mission Debrief</h1>
         </div>
 
-        <div class="grid grid-cols-3 divide-x divide-gray-200 border-b border-gray-200 bg-white">
-            <div class="p-4 text-center">
-                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Module</div>
-                <div class="font-semibold text-gray-800 truncate px-2">{{ category }}</div>
+        <div class="p-5 text-center bg-white">
+            <p class="text-muted fw-800 small text-uppercase mb-0">Total XP Acquired</p>
+            <div class="yield-display" id="scoreDisplay">0</div>
+            
+            <div id="motivationalMessage" class="opacity-0">
+                </div>
+        </div>
+
+        <div class="row g-0 border-top border-bottom bg-light">
+            <div class="col-4 metric-box">
+                <p class="small fw-800 text-muted text-uppercase mb-1">Module</p>
+                <span class="fw-bold text-dark">{{ category|default:"General" }}</span>
             </div>
-            <div class="p-4 text-center">
-                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Capacity</div>
-                <div class="font-semibold text-gray-800">{{ total_possible }} pts</div>
+            <div class="col-4 metric-box">
+                <p class="small fw-800 text-muted text-uppercase mb-1">Potential</p>
+                <span class="fw-bold text-dark">{{ total_possible|default:0 }} XP</span>
             </div>
-            <div class="p-4 text-center">
-                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Accuracy</div>
-                <div class="font-semibold text-[#1b4332]">{{ percentage|floatformat:1 }}%</div>
+            <div class="col-4 metric-box">
+                <p class="small fw-800 text-muted text-uppercase mb-1">Accuracy</p>
+                <span class="fw-bold text-success">{{ percentage|default:0|floatformat:1 }}%</span>
             </div>
         </div>
 
         {% if new_level > request.user.level|add:0 %}
-        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 m-6 shadow-sm rounded-r">
-            <p class="font-bold text-sm tracking-wider uppercase text-emerald-800 m-0">System Rank Upgraded</p>
-            <p class="text-sm text-emerald-700 m-0 mt-1">Authorization level increased to Level {{ new_level }}.</p>
+        <div class="p-4 mx-4 mt-4 rounded-4" style="background: #ecfdf5; border: 1px solid #10b981;">
+            <div class="d-flex align-items-center gap-3">
+                <span class="fs-2">🎖️</span>
+                <div>
+                    <h6 class="fw-800 text-success m-0">AUTHORIZATION UPGRADED</h6>
+                    <p class="small text-success opacity-75 m-0">You have ascended to Rank {{ new_level }}. New modules unlocked.</p>
+                </div>
+            </div>
         </div>
         {% endif %}
 
-        <div class="p-6 bg-white">
-            <h3 class="text-lg font-bold text-[#1b4332] mb-4 border-b border-gray-100 pb-2 tracking-tight">Performance Metrics</h3>
-            <div class="flex justify-between text-sm text-gray-600 mb-2">
-                <span class="font-semibold uppercase tracking-wide">Cumulative Points: {{ total_points }}</span>
-                <span class="font-semibold uppercase tracking-wide">Current Level: {{ new_level }}</span>
+        <div class="p-5">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-800 small text-uppercase">Cumulative Progress</span>
+                <span class="fw-800 small text-navy">{{ total_points|default:0 }} Total XP</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
-                <div class="bg-[#1b4332] h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%" id="accuracyBar" data-target="{{ percentage }}"></div>
+            <div class="progress-track-large">
+                <div id="accuracyBar" class="progress-fill-large" data-target="{{ percentage|default:0 }}"></div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="{% url 'dashboard:student_dashboard' %}" class="btn-return w-100">
+                    Return to Headquarters
+                </a>
             </div>
         </div>
-
-        <div class="p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="{% url 'dashboard:student_dashboard' %}" class="bg-white text-gray-700 border border-gray-300 font-bold py-3 px-6 rounded hover:bg-gray-100 transition shadow-sm text-sm uppercase tracking-wider no-underline text-center w-full sm:w-auto">
-                Return to Dashboard
-            </a>
-            <a href="{% url 'quizzes:start_quiz' question.category.id %}" class="bg-[#1b4332] text-white border border-[#1b4332] font-bold py-3 px-6 rounded hover:bg-[#143628] transition shadow-sm text-sm uppercase tracking-wider no-underline text-center w-full sm:w-auto">
-                Re-Initialize Module
-            </a>
-        </div>
-        
     </div>
 </div>
 
 <script>
-const scoreElement = document.getElementById('scoreDisplay');
-const targetScore = {{ score }};
-const duration = 1500;
-const frames = 60;
-const increment = targetScore / (duration / (1000 / frames));
-let currentScore = 0;
-
-function animateScore() {
-    if (currentScore < targetScore) {
-        currentScore = Math.min(currentScore + increment, targetScore);
-        scoreElement.textContent = Math.round(currentScore);
-        requestAnimationFrame(animateScore);
-    } else {
-        scoreElement.textContent = targetScore;
-    }
-}
-
-setTimeout(() => {
-    animateScore();
+document.addEventListener("DOMContentLoaded", function() {
+    const scoreElement = document.getElementById('scoreDisplay');
+    const msgBox = document.getElementById('motivationalMessage');
     const accuracyBar = document.getElementById('accuracyBar');
-    if (accuracyBar) {
-        accuracyBar.style.width = accuracyBar.getAttribute('data-target') + '%';
+    
+    const accuracyTarget = parseFloat("{{ percentage|default:'0' }}");
+    const targetScore = parseInt("{{ score|default:'0' }}", 10);
+    
+    let currentScore = 0;
+    const duration = 2000;
+    const totalFrames = 120;
+    const increment = targetScore / totalFrames;
+
+    const messages = {
+        low: ["Analysis: Critical improvements required. Return to study modules.", "Protocol failure. Mastery takes persistent effort."],
+        medium: ["Analysis: Satisfactory performance. Operational capacity increasing.", "Solid progress. Target 100% accuracy for next deployment."],
+        high: ["Analysis: Exceptional performance. Eco-Warrior status confirmed.", "Perfect execution. The ecosystem is secured by your knowledge."]
+    };
+
+    function displayRandomMessage(pct) {
+        let cat = 'low';
+        if (pct >= 80) {
+            cat = 'high';
+            msgBox.style.background = "#ecfdf5";
+            msgBox.style.color = "#065f46";
+        } else if (pct >= 40) {
+            cat = 'medium';
+            msgBox.style.background = "#eff6ff";
+            msgBox.style.color = "#1e40af";
+        } else {
+            cat = 'low';
+            msgBox.style.background = "#fff1f2";
+            msgBox.style.color = "#991b1b";
+        }
+
+        const arr = messages[cat];
+        msgBox.textContent = arr[Math.floor(Math.random() * arr.length)];
+        
+        setTimeout(() => {
+            msgBox.classList.add('opacity-100');
+            msgBox.style.transform = "translateY(-10px)";
+        }, 500);
     }
-}, 300);
+
+    function animateScore() {
+        if (targetScore === 0) { scoreElement.textContent = 0; return; }
+        if (currentScore < targetScore) {
+            currentScore += increment;
+            scoreElement.textContent = Math.round(Math.min(currentScore, targetScore));
+            requestAnimationFrame(animateScore);
+        }
+    }
+
+    setTimeout(() => {
+        animateScore();
+        displayRandomMessage(accuracyTarget);
+        if (accuracyBar) {
+            accuracyBar.style.width = accuracyBar.getAttribute('data-target') + '%';
+        }
+    }, 400);
+});
 </script>
 {% endblock %}

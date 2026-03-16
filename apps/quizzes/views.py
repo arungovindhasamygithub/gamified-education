@@ -2,8 +2,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
-from django.utils import timezone  # Add this import
-from .models import Category, Question, QuizSession, QuizAnswer
+from django.utils import timezone
+from .models import Category, Question, QuizSession, QuizAnswer, QuizAssignment
 from .forms import QuestionForm
 import random
 
@@ -11,27 +11,42 @@ import random
 def start_quiz(request, category_id):
     """Start a new quiz session"""
     category = get_object_or_404(Category, id=category_id)
+    
+    # --- SECURITY CHECK ---
+    if request.user.role == 'student':
+        assignment = QuizAssignment.objects.filter(student=request.user, category=category).first()
+        if not assignment:
+            messages.error(request, 'Access Denied: You have not been assigned this module.')
+            return redirect('dashboard:student_dashboard')
+        if assignment.is_completed:
+            messages.error(request, 'Module Locked: You have already completed this assessment.')
+            return redirect('dashboard:student_dashboard')
+            
+        # Block if the expiration window has passed
+        if timezone.now() > assignment.expires_at:
+            messages.error(request, 'This assessment time window has expired.')
+            return redirect('dashboard:student_dashboard')
+    # ----------------------
+
     questions = list(Question.objects.filter(category=category))
     
     if len(questions) < 5:
         messages.error(request, 'Not enough questions in this category. Please try another.')
         return redirect('dashboard:student_dashboard')
     
-    # Select random 5 questions
     selected_questions = random.sample(questions, min(5, len(questions)))
     
-    # Create quiz session
     session = QuizSession.objects.create(
         user=request.user,
         category=category
     )
     
-    # Store question IDs in session
     request.session['current_quiz'] = {
         'session_id': session.id,
         'question_ids': [q.id for q in selected_questions],
         'current_index': 0,
-        'score': 0
+        'score': 0,
+        'category_id': category.id 
     }
     
     return redirect('quizzes:take_quiz')
@@ -51,12 +66,26 @@ def take_quiz(request):
         return redirect('quizzes:quiz_complete')
     
     question = get_object_or_404(Question, id=question_ids[current_index])
+    category = get_object_or_404(Category, id=quiz_data['category_id'])
+
+    # Calculate actual remaining seconds until expiration
+    time_limit_seconds = 0
+    if request.user.role == 'student':
+        assignment = QuizAssignment.objects.filter(student=request.user, category=category).first()
+        if assignment and assignment.expires_at:
+            time_remaining = (assignment.expires_at - timezone.now()).total_seconds()
+            time_limit_seconds = int(time_remaining) if time_remaining > 0 else 0
+            
+            # Auto-kick out if time passed while navigating
+            if time_limit_seconds <= 0:
+                return redirect('quizzes:quiz_complete')
     
     context = {
         'question': question,
         'current_index': current_index + 1,
         'total_questions': len(question_ids),
-        'progress': (current_index / len(question_ids)) * 100
+        'progress': (current_index / len(question_ids)) * 100,
+        'time_limit_seconds': time_limit_seconds 
     }
     
     return render(request, 'quizzes/take_quiz.html', context)
@@ -74,12 +103,10 @@ def submit_answer(request):
         quiz_data = request.session.get('current_quiz')
         
         if quiz_data:
-            # Update score
             if is_correct:
                 quiz_data['score'] += 20
                 request.session['current_quiz'] = quiz_data
             
-            # Save answer to database
             session = QuizSession.objects.get(id=quiz_data['session_id'])
             QuizAnswer.objects.create(
                 session=session,
@@ -135,29 +162,35 @@ def quiz_complete(request):
         return redirect('dashboard:student_dashboard')
     
     try:
-        # Get the quiz session
         session = QuizSession.objects.get(id=quiz_data['session_id'])
         session.score = quiz_data['score']
         session.completed = True
-        session.completed_at = timezone.now()  # Now timezone is imported
+        session.completed_at = timezone.now()
         session.save()
+        
+        # Lock the assignment so they can't retake it
+        if request.user.role == 'student':
+            assignment = QuizAssignment.objects.filter(
+                student=request.user, 
+                category_id=quiz_data.get('category_id')
+            ).first()
+            if assignment:
+                assignment.is_completed = True
+                assignment.save()
         
         # Update user points and level
         user = request.user
         user.points += quiz_data['score']
         user.save()
-        user.update_level()  # This will save again if level changed
+        user.update_level()
         
-        # Record quiz completion
         user.total_quizzes_taken += 1
         user.total_correct_answers += quiz_data['score'] // 20
         user.last_active = timezone.now()
         user.save(update_fields=['total_quizzes_taken', 'total_correct_answers', 'last_active'])
         
-        # Clear session data
         del request.session['current_quiz']
         
-        # Show success message
         messages.success(
             request, 
             f'Quiz completed! You scored {quiz_data["score"]} points. '

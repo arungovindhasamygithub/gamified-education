@@ -2,91 +2,182 @@
 
 {% block title %}EcoQuest - Gamified Environmental Education{% endblock %}
 
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, var(--brand-navy) 0%, #1e3a8a 100%);
+        padding: 100px 0;
+        color: white;
+        border-radius: 0 0 40px 40px;
+        margin-bottom: 60px;
+    }
+    
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1.1;
+    }
+
+    .feature-card {
+        background: var(--brand-white);
+        border-radius: 20px;
+        padding: 35px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(10, 36, 114, 0.08);
+        border-color: var(--brand-navy);
+    }
+
+    .step-number {
+        font-family: 'Fira Code', monospace;
+        color: var(--brand-navy);
+        background: rgba(10, 36, 114, 0.05);
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .cta-banner {
+        background-color: var(--brand-white);
+        border: 2px solid var(--brand-navy);
+        border-radius: 24px;
+        padding: 60px;
+        margin: 80px 0;
+        text-align: center;
+    }
+
+    .btn-brand-primary {
+        background-color: var(--brand-navy);
+        color: white;
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-block;
+        transition: opacity 0.2s;
+    }
+
+    .btn-brand-outline {
+        border: 2px solid white;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+
+    .btn-brand-outline:hover {
+        background: white;
+        color: var(--brand-navy);
+    }
+
+    footer {
+        border-top: 1px solid var(--border-color);
+        padding-top: 40px;
+        margin-top: 60px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<header class="bg-[#2d6a4f] text-white py-20 px-5 text-center">
-    <h1 class="text-5xl mb-5 font-bold">Gamified Environmental Education Platform</h1>
-    <p class="text-xl max-w-3xl mx-auto">
-        Empowering students and administrators with dynamic, engaging learning tools.
-    </p>
-    {% if not user.is_authenticated %}
-    <div class="mt-8">
-        <a href="{% url 'register' %}" class="bg-white text-[#2d6a4f] py-3 px-8 rounded font-bold mr-4 inline-block hover:bg-gray-100 transition no-underline">Get Started</a>
-        <a href="{% url 'login' %}" class="bg-transparent text-white border-2 border-white py-3 px-8 rounded font-bold inline-block hover:bg-white hover:text-[#2d6a4f] transition no-underline">Login</a>
+<header class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-3 hero-title mb-4">Gamified Environmental<br>Education Platform</h1>
+        <p class="lead mb-5 opacity-75 max-w-2xl mx-auto">
+            Empowering students and administrators with dynamic, engaging learning tools to protect our planet.
+        </p>
+        {% if not user.is_authenticated %}
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'register' %}" class="btn btn-light px-5 py-3 fw-bold shadow-sm" style="color: var(--brand-navy); border-radius: 12px;">Get Started</a>
+            <a href="{% url 'login' %}" class="btn-brand-outline">Sign In</a>
+        </div>
+        {% endif %}
     </div>
-    {% endif %}
 </header>
 
-<div class="bg-[#fdfcdc] py-16 px-5">
-    <div class="container mx-auto">
-        <h2 class="text-center text-[#2b2d42] text-3xl font-bold mb-10">Platform Features</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border-0 text-center p-4 bg-white rounded-lg hover:-translate-y-1 transition duration-300">
-                    <div class="card-body">
-                        <h3 class="text-[#2d6a4f] font-bold text-2xl mb-3">Learn</h3>
-                        <p class="text-gray-700 text-lg m-0">Interactive quizzes on environmental topics like waste management, climate change, and conservation.</p>
-                    </div>
-                </div>
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <span class="admin-badge">Core Capabilities</span>
+        <h2 class="fw-800 mt-3" style="color: var(--brand-navy); font-weight: 800;">Platform Features</h2>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card">
+                <div class="stat-icon icon-live mb-4">📚</div>
+                <h3 class="fw-bold h4 mb-3">Interactive Learning</h3>
+                <p class="text-muted">Master waste management, climate change, and conservation through high-impact quizzes.</p>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border-0 text-center p-4 bg-white rounded-lg hover:-translate-y-1 transition duration-300">
-                    <div class="card-body">
-                        <h3 class="text-[#2d6a4f] font-bold text-2xl mb-3">Earn Points</h3>
-                        <p class="text-gray-700 text-lg m-0">Gain points for correct answers and level up as you progress through the material.</p>
-                    </div>
-                </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card">
+                <div class="stat-icon icon-present mb-4">💎</div>
+                <h3 class="fw-bold h4 mb-3">Reward System</h3>
+                <p class="text-muted">Accumulate points for precision and level up your profile as you master the curriculum.</p>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm border-0 text-center p-4 bg-white rounded-lg hover:-translate-y-1 transition duration-300">
-                    <div class="card-body">
-                        <h3 class="text-[#2d6a4f] font-bold text-2xl mb-3">Complete Missions</h3>
-                        <p class="text-gray-700 text-lg m-0">Take on real-world environmental challenges and submit evidence to earn rewards.</p>
-                    </div>
-                </div>
+        </div>
+        <div class="col-lg-4 col-md-12">
+            <div class="feature-card">
+                <div class="stat-icon icon-total mb-4">🌍</div>
+                <h3 class="fw-bold h4 mb-3">Real-World Missions</h3>
+                <p class="text-muted">Submit evidence for environmental challenges and earn exclusive digital badges.</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="bg-[#52b788] py-16 px-5 text-white">
-    <div class="container mx-auto text-center">
-        <h2 class="text-4xl font-bold mb-10">How It Works</h2>
-        <div class="row g-4">
+<div class="container-fluid py-5" style="background-color: #f1f5f9;">
+    <div class="container py-4">
+        <h2 class="text-center fw-800 mb-5" style="color: var(--brand-navy); font-weight: 800;">Execution Path</h2>
+        <div class="row g-5">
             <div class="col-md-4">
-                <h4 class="text-2xl font-bold mb-2">1. Sign Up</h4>
-                <p class="text-lg">Create your student profile and get ready to start your environmental journey.</p>
+                <div class="step-number">01</div>
+                <h4 class="fw-bold">Initialize Profile</h4>
+                <p class="text-muted">Create a secure student account to track your environmental impact and ranking.</p>
             </div>
             <div class="col-md-4">
-                <h4 class="text-2xl font-bold mb-2">2. Take Challenges</h4>
-                <p class="text-lg">Participate in daily quizzes, mini-games, and practical eco-missions.</p>
+                <div class="step-number">02</div>
+                <h4 class="fw-bold">Engagement</h4>
+                <p class="text-muted">Participate in daily technical quizzes and practical field-based eco-missions.</p>
             </div>
             <div class="col-md-4">
-                <h4 class="text-2xl font-bold mb-2">3. Climb the Ranks</h4>
-                <p class="text-lg">Earn badges, increase your level, and compete with peers on the leaderboard.</p>
+                <div class="step-number">03</div>
+                <h4 class="fw-bold">Leaderboard Status</h4>
+                <p class="text-muted">Ascend through ranks and compete for top position on the global leaderboard.</p>
             </div>
         </div>
     </div>
 </div>
 
-
-<div class="bg-[#e07a5f] text-white py-16 px-5 text-center">
-    <div class="container mx-auto">
-        <h2 class="text-4xl font-bold mb-4">Ready to Save the Planet?</h2>
-        <p class="text-xl mb-8 max-w-2xl mx-auto">Join hundreds of other students learning how to make a real difference in the world today.</p>
+<div class="container">
+    <div class="cta-banner">
+        <div class="pulse-dot mx-auto mb-3"></div>
+        <h2 class="fw-800 mb-3" style="color: var(--brand-navy); font-weight: 800;">Ready to Impact the World?</h2>
+        <p class="text-muted mb-4 fs-5">Join our network of students committed to real-world environmental change.</p>
         {% if not user.is_authenticated %}
-            <a href="{% url 'register' %}" class="bg-[#2b2d42] text-white py-3 px-10 rounded font-bold hover:bg-gray-800 transition no-underline inline-block">Join the Movement Now</a>
+            <a href="{% url 'register' %}" class="btn-brand-primary">Join the Movement Now</a>
         {% endif %}
     </div>
 </div>
 
-<footer class="bg-[#2b2d42] text-white text-center py-6">
-    <div class="container mx-auto">
-        <p class="m-0 text-gray-400">&copy; 2026 EcoQuest Platform. All rights reserved.</p>
-        <div class="mt-2">
-            <a href="#" class="text-gray-400 hover:text-white mx-2 text-sm no-underline">Privacy Policy</a>
-            <a href="#" class="text-gray-400 hover:text-white mx-2 text-sm no-underline">Terms of Service</a>
-            <a href="#" class="text-gray-400 hover:text-white mx-2 text-sm no-underline">Contact Support</a>
-        </div>
+<footer class="container text-center py-5">
+    <p class="text-muted small mb-2">&copy; 2026 EcoQuest Platform. All rights reserved.</p>
+    <div class="d-flex justify-content-center gap-4">
+        <a href="#" class="text-decoration-none text-muted small hover-navy">Privacy</a>
+        <a href="#" class="text-decoration-none text-muted small hover-navy">Terms</a>
+        <a href="#" class="text-decoration-none text-muted small hover-navy">Support</a>
     </div>
 </footer>
 {% endblock %}

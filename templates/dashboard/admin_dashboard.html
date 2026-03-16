@@ -1,116 +1,263 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Admin Dashboard | EcoQuest{% endblock %}
+{% block title %}Master Admin | EcoQuest Command{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --panel-bg: #ffffff;
+        --accent-navy: #0A2472;
+    }
+
+    body { background-color: #f1f5f9; }
+
+    .admin-hero {
+        background: linear-gradient(135deg, var(--accent-navy) 0%, #1e40af 100%);
+        padding: 50px 0 90px 0;
+        color: white;
+        border-radius: 0 0 40px 40px;
+        margin-bottom: -60px;
+    }
+
+    .assignment-panel {
+        background: white;
+        border-radius: 30px;
+        padding: 40px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 20px 40px rgba(10, 36, 114, 0.05);
+        margin-bottom: 40px;
+    }
+
+    .selection-grid {
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .student-item {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .student-item:hover {
+        border-color: var(--accent-navy);
+        background: #f0f7ff;
+    }
+
+    .master-link-btn {
+        background: var(--accent-navy);
+        color: white;
+        border-radius: 15px;
+        padding: 18px;
+        font-weight: 800;
+        text-transform: uppercase;
+        width: 100%;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .master-link-btn:hover {
+        background: #000;
+        transform: translateY(-2px);
+    }
+
+    .roster-card {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+
+    .btn-unlink {
+        background: #fee2e2;
+        color: #991b1b;
+        border: none;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 10px;
+        border-radius: 8px;
+        transition: 0.2s;
+    }
+
+    .btn-unlink:hover {
+        background: #740f28;
+        color: white;
+    }
+
+    .select-all-header {
+        background: var(--accent-navy);
+        color: white;
+        padding: 12px 15px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .search-input {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 10px 15px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="grid-2" style="margin-bottom: 20px;">
-        <div class="card" style="text-align: center; border-left: 5px solid var(--primary);">
-            <h3>Total Registered Students</h3>
-            <h1 id="statTotalStudents" style="margin:0;">{{ total_students }}</h1>
-        </div>
-        <div class="card" style="text-align: center; border-left: 5px solid var(--accent);">
-            <h3>Active Questions in Bank</h3>
-            <h1 id="statTotalQuestions" style="margin:0;">{{ total_questions }}</h1>
+<div class="admin-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-7">
+                <span class="admin-badge mb-3" style="background: rgba(255,255,255,0.2); color: white;">Master System Admin</span>
+                <h1 class="display-5 fw-800">Roster Management</h1>
+                <p class="opacity-75">Connect operatives to faculty and monitor institutional growth.</p>
+            </div>
+            <div class="col-md-5">
+                <div class="glass-stat-card d-flex justify-content-around p-4" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px;">
+                    <div class="text-center">
+                        <h2 class="fw-800 m-0 text-white">{{ total_students }}</h2>
+                        <small class="opacity-75 fw-bold text-uppercase" style="font-size: 0.65rem;">Students</small>
+                    </div>
+                    <div class="text-center border-start border-white border-opacity-25 ps-4">
+                        <h2 class="fw-800 m-0 text-white">{{ total_teachers }}</h2>
+                        <small class="opacity-75 fw-bold text-uppercase" style="font-size: 0.65rem;">Staff</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="card" style="background: #f4f1de;">
-        <h3>➕ Add New Quiz Question</h3>
-        <p>Categories entered here will automatically appear on the Student Sidebar.</p>
-        <form method="post" action="{% url 'quizzes:manage_questions' %}" class="grid-2">
+<div class="container" style="position: relative; z-index: 5;">
+    
+    <div class="assignment-panel">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h4 class="fw-800 m-0">Bulk Assignment Protocol</h4>
+            <div class="live-indicator"><div class="pulse-dot"></div> ACTIVE SESSION</div>
+        </div>
+        
+        <form action="{% url 'dashboard:assign_student_to_teacher' %}" method="POST">
             {% csrf_token %}
-            <div class="form-group">
-                <label>Category</label>
-                <select name="category" required>
-                    {% for category in questions %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Question Text</label>
-                <input type="text" name="text" required>
-            </div>
-            <div class="form-group"><label>Option 1</label><input type="text" name="option1" required></div>
-            <div class="form-group"><label>Option 2</label><input type="text" name="option2" required></div>
-            <div class="form-group"><label>Option 3</label><input type="text" name="option3" required></div>
-            <div class="form-group"><label>Option 4</label><input type="text" name="option4" required></div>
-            <div class="form-group">
-                <label>Correct Answer</label>
-                <select name="correct_answer" required>
-                    <option value="0">Option 1</option>
-                    <option value="1">Option 2</option>
-                    <option value="2">Option 3</option>
-                    <option value="3">Option 4</option>
-                </select>
-            </div>
-            <div style="display: flex; align-items: flex-end;">
-                <button type="submit" style="margin-bottom: 15px;">Save Question</button>
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <label class="form-label fw-800 small text-muted text-uppercase mb-2">1. Select Target Students</label>
+                    
+                    <input type="text" id="studentSearch" class="search-input" placeholder="Search by name..." onkeyup="filterStudents()">
+                    
+                    <div class="select-all-header" onclick="toggleSelection()">
+                        <input type="checkbox" id="masterCheck" class="form-check-input m-0">
+                        <span>SELECT ALL FILTERED OPERATIVES</span>
+                    </div>
+                    
+                    <div class="selection-grid" id="studentGrid">
+                        {% for student in students_list %}
+                        <label class="student-item" for="std_{{ student.id }}">
+                            <input type="checkbox" name="student_ids" value="{{ student.id }}" id="std_{{ student.id }}" class="form-check-input student-cb">
+                            <div class="d-flex justify-content-between w-100 align-items-center">
+                                <span class="fw-bold student-name">{{ student.username }}</span>
+                                {% if student.assigned_teacher %}
+                                    <span class="badge bg-light text-muted" style="font-size: 0.6rem;">Linked: {{ student.assigned_teacher.username }}</span>
+                                {% else %}
+                                    <span class="badge bg-soft-success text-success" style="font-size: 0.6rem; background: #dcfce7;">UNASSIGNED</span>
+                                {% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="mb-4">
+                        <label class="form-label fw-800 small text-muted text-uppercase mb-2">2. Assign to Instructor</label>
+                        <select name="teacher_id" required class="form-select py-3 px-4 border-2" style="border-radius: 15px;">
+                            <option value="" disabled selected>Choose Staff Member...</option>
+                            {% for teacher in teachers_list %}
+                                <option value="{{ teacher.id }}">{{ teacher.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="master-link-btn shadow-sm">
+                        Execute Assignment
+                    </button>
+                </div>
             </div>
         </form>
     </div>
 
-    <div class="grid-2">
-        <div class="card" style="overflow-x: auto;">
-            <h3>User Directory</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Role</th>
-                        <th>School</th>
-                        <th>Points</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for u in users %}
-                    <tr>
-                        <td>{{ u.username }}</td>
-                        <td>{{ u.role|upper }}</td>
-                        <td>{{ u.school|default:'N/A' }}</td>
-                        <td>{{ u.points }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="mb-4">
+        <h4 class="fw-800 text-dark">Institutional Rosters</h4>
+        <p class="text-muted small">Overview of active staff-student connections.</p>
+    </div>
 
-        <div class="card" style="overflow-x: auto;">
-            <h3>Question Database</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Question</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for category in questions %}
-                        {% for question in category.questions.all %}
-                        <tr>
-                            <td>{{ category.name }}</td>
-                            <td>{{ question.text|truncatechars:50 }}</td>
-                            <td>
-                                <a href="{% url 'quizzes:delete_question' question.id %}" 
-                                   class="button danger" 
-                                   style="padding: 5px 10px; margin:0; text-decoration: none; color: white; background-color: var(--danger);"
-                                   onclick="return confirm('Delete this question?')">
-                                    Delete
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3">No questions in this category.</td>
-                        </tr>
-                        {% endfor %}
+    <div class="row g-4">
+    {% for teacher in teachers_list %}
+    <div class="col-lg-6">
+        <div class="roster-card shadow-sm">
+            <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
+                <span class="fw-800 text-navy uppercase small">STAFF: {{ teacher.username }}</span>
+                <span class="time-box">{{ teacher.my_students.count }} LINKED</span>
+            </div>
+            <div class="p-3">
+                <div class="d-flex flex-wrap gap-2">
+                    {% for student in teacher.my_students.all %}
+                    <div class="d-flex align-items-center bg-white border rounded-pill px-3 py-1 shadow-sm">
+                        <span class="fw-bold small me-2" style="font-size: 0.75rem;">{{ student.username }}</span>
+                        
+                        <form action="{% url 'dashboard:assign_student_to_teacher' %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                            <input type="hidden" name="teacher_id" value=""> <button type="submit" class="btn-unlink" title="Remove Student">×</button>
+                        </form>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small italic p-2 m-0">No active links found.</p>
                     {% endfor %}
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
     </div>
+    {% endfor %}
 </div>
+</div>
+
+<script>
+    function toggleSelection() {
+        const master = document.getElementById('masterCheck');
+        const cbs = document.querySelectorAll('.student-cb');
+        if (event.target.tagName !== 'INPUT') { master.checked = !master.checked; }
+        cbs.forEach(cb => {
+            if (cb.closest('.student-item').style.display !== 'none') {
+                cb.checked = master.checked;
+            }
+        });
+    }
+
+    function filterStudents() {
+        const input = document.getElementById('studentSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.student-item');
+        items.forEach(item => {
+            const name = item.querySelector('.student-name').innerText.toLowerCase();
+            item.style.display = name.includes(input) ? 'flex' : 'none';
+        });
+    }
+</script>
 {% endblock %}

@@ -29,6 +29,24 @@ class Question(models.Model):
     def get_options(self):
         return [self.option1, self.option2, self.option3, self.option4]
 
+class QuizAssignment(models.Model):
+    instructor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assignments_given')
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assignments_received')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    
+    # --- NEW: Absolute Expiration Window ---
+    expires_at = models.DateTimeField(null=True, blank=True)
+    # ---------------------------------------
+    
+    is_completed = models.BooleanField(default=False)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('student', 'category') 
+
+    def __str__(self):
+        return f"{self.category.name} assigned to {self.student.username}"
+
 class QuizSession(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='quiz_sessions')
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
