@@ -3,175 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}EcoQuest{% endblock %}</title>
+    <title>{% block title %}EcoQuest | Level Up{% endblock %}</title>
     
     {% load static %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --brand-navy: #0A2472; 
-            --brand-crimson: #740f28; 
-            --brand-white: #ffffff;
-            --bg-light: #f8fafc; 
-            --text-main: #334155; 
-            --text-muted: #64748b; 
-            --border-color: #e2e8f0;
+            --ui-bg: #0d1117;           /* Deep Dark - Base */
+            --ui-panel: #161b22;        /* Lighter Dark - Panels */
+            --ui-border: #30363d;       /* Defining Lines */
+            --neon-green: #2ecc71;      /* Primary Action / Health */
+            --neon-blue: #00d2ff;       /* Secondary Info / Mana */
+            --neon-yellow: #f1c40f;     /* XP / Alerts */
+            --text-bright: #ffffff;
+            --text-dim: #8b949e;
         }
 
         body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--bg-light); 
-            color: var(--text-main); 
+            font-family: 'Chakra Petch', sans-serif; 
+            background-color: var(--ui-bg); 
+            color: var(--text-bright); 
             margin: 0;
-            padding-bottom: 50px; 
+            background-image: linear-gradient(var(--ui-border) 1px, transparent 1px),
+                              linear-gradient(90deg, var(--ui-border) 1px, transparent 1px);
+            background-size: 50px 50px; /* Grid background for a tactical feel */
         }
 
+        /* Tactical Top Navigation */
         .navbar { 
-            background-color: var(--brand-white); 
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); 
-            padding: 12px 0; 
-            margin-bottom: 30px; 
-            border-bottom: 1px solid var(--border-color);
+            background-color: var(--ui-panel);
+            border-bottom: 3px solid var(--neon-blue);
+            padding: 10px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .brand-name { 
-            margin: 0; 
-            font-size: 1.5rem; 
-            font-weight: 800; 
-            color: var(--brand-navy); 
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.6rem; 
+            color: var(--neon-blue); 
             text-decoration: none;
-            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
-        .user-section {
+        /* Player Stats Card (The HUD) */
+        .player-hud {
+            background: #000000;
+            border: 2px solid var(--neon-green);
+            padding: 5px 20px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .user-welcome {
-            font-weight: 600;
-            color: var(--text-main);
-            font-size: 0.9rem;
-        }
-
-        .admin-badge { 
-            background-color: rgba(10, 36, 114, 0.1); 
-            color: var(--brand-navy); 
-            font-weight: 700; 
-            padding: 6px 14px; 
-            border-radius: 20px; 
-            font-size: 0.75rem; 
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--neon-green);
+            font-weight: bold;
+            display: block;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .btn-logout {
-            background-color: #f1f5f9;
-            color: var(--brand-crimson);
-            border: 1px solid #fee2e2;
-            padding: 6px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            transition: all 0.2s;
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #fff;
         }
 
-        .btn-logout:hover {
-            background-color: var(--brand-crimson);
-            color: white;
-        }
-
-        .nav-link-custom {
-            color: var(--brand-navy);
-            font-weight: 700;
-            text-decoration: none;
-            font-size: 0.9rem;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-
-        .nav-link-custom:hover {
-            background-color: #f1f5f9;
-        }
-
-        .alert {
+        /* Game Buttons */
+        .btn-action {
+            background: var(--neon-green);
+            color: #000;
+            font-weight: 800;
             border: none;
-            border-radius: 12px;
-            padding: 16px 20px;
-            font-weight: 500;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 10px 25px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+            transition: 0.2s;
+            text-transform: uppercase;
         }
 
-        @media (max-width: 768px) {
-            .navbar .container {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            .user-section {
-                flex-direction: column;
-                width: 100%;
-            }
-            .admin-badge {
-                display: inline-block;
-                margin-top: 5px;
-            }
+        .btn-action:hover {
+            background: var(--text-bright);
+            transform: scale(1.05);
         }
+
+        .btn-exit {
+            background: #cc2e2e;
+            color: white;
+            padding: 5px 15px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
+        }
+
+        /* Content Frames */
+        .content-frame {
+            background: var(--ui-panel);
+            border: 1px solid var(--ui-border);
+            border-top: 4px solid var(--neon-blue);
+            padding: 30px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .content-frame::before {
+            content: "SYSTEM READY";
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: var(--neon-blue);
+            color: #000;
+            font-size: 10px;
+            padding: 2px 8px;
+            font-weight: bold;
+        }
+
+        /* Alert/Messages */
+        .alert-game {
+            background: #1a1a1a;
+            border-left: 10px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            border-radius: 0;
+            font-weight: bold;
+        }
+
+        .xp-text { color: var(--neon-yellow); font-weight: bold; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="/" class="brand-name">EcoQuest</a>
+            <a href="/" class="brand-name">
+                <i class="bi bi-shield-shaded"></i> ECOQUEST
+            </a>
             
-            <div class="user-section">
+            <div class="d-flex align-items-center gap-4">
                 {% if user.is_authenticated %}
-                    <span class="user-welcome">Hello, <b>{{ user.username }}</b></span>
-                    
-                    {% if user.role == 'student' %}
-                        <span class="admin-badge">
-                            Lvl {{ user.level }} • {{ user.points }} pts
-                        </span>
-                    {% endif %}
-                    
+                    <div class="player-hud">
+                        <div>
+                            <span class="stat-label">Player</span>
+                            <span class="stat-value">{{ user.username }}</span>
+                        </div>
+                        {% if user.role == 'student' %}
+                        <div class="border-start border-secondary ps-3">
+                            <span class="stat-label">Score</span>
+                            <span class="stat-value xp-text">{{ user.points }} XP</span>
+                        </div>
+                        <div class="border-start border-secondary ps-3">
+                            <span class="stat-label">Tier</span>
+                            <span class="stat-value text-info">LVL {{ user.level }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
                     <form method="post" action="{% url 'logout' %}" class="m-0">
                         {% csrf_token %}
-                        <button type="submit" class="btn-logout">Logout</button>
+                        <button type="submit" class="btn-exit">DISCONNECT</button>
                     </form>
                 {% else %}
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'login' %}" class="nav-link-custom">Login</a>
-                        <a href="{% url 'register' %}" class="nav-link-custom" style="background: var(--brand-navy); color: white;">Register</a>
+                    <div class="d-flex gap-3 align-items-center">
+                        <a href="{% url 'login' %}" class="text-white text-decoration-none fw-bold small">LOGIN</a>
+                        <a href="{% url 'register' %}" class="btn-action">JOIN QUEST</a>
                     </div>
                 {% endif %}
             </div>
         </div>
     </nav>
 
-    <main class="container">
+    <main class="container py-4">
         {% if messages %}
-            <div class="row justify-content-center mb-4">
-                <div class="col-md-10">
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
+            {% for message in messages %}
+                <div class="alert alert-game alert-dismissible fade show mb-4" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
                 </div>
-            </div>
+            {% endfor %}
         {% endif %}
 
-        {% block content %}{% endblock %}
+        <div class="content-frame">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

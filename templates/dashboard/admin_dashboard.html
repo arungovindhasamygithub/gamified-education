@@ -1,47 +1,132 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Master Admin | EcoQuest Command{% endblock %}
+{% block title %}Master Control | EcoQuest Command{% endblock %}
 
 {% block extra_css %}
 <style>
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
     :root {
-        --panel-bg: #ffffff;
-        --accent-navy: #0A2472;
+        --neon-red: #ff4757;
+        --neon-blue: #00d2ff;
+        --neon-green: #2ecc71;
+        --neon-yellow: #f1c40f;
+        --neon-purple: #9c88ff;
+        --ui-border: #30363d;
+        --ui-panel: #161b22;
+        --text-bright: #ffffff;
+        --text-dim: #8b949e;
     }
 
-    body { background-color: #f1f5f9; }
-
-    .admin-hero {
-        background: linear-gradient(135deg, var(--accent-navy) 0%, #1e40af 100%);
-        padding: 50px 0 90px 0;
-        color: white;
-        border-radius: 0 0 40px 40px;
-        margin-bottom: -60px;
+    /* Master Header */
+    .header-master {
+        background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%);
+        padding: 60px 0 80px 0;
+        border-bottom: 3px solid var(--neon-yellow);
+        margin-bottom: -40px;
+        position: relative;
     }
 
-    .assignment-panel {
-        background: white;
-        border-radius: 30px;
-        padding: 40px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 20px 40px rgba(10, 36, 114, 0.05);
-        margin-bottom: 40px;
+    .header-master::before {
+        content: "ROOT_ACCESS_GRANTED // OVERRIDE_ENABLED";
+        position: absolute;
+        top: 15px;
+        left: 20px;
+        color: var(--neon-yellow);
+        font-family: 'Orbitron', sans-serif;
+        font-size: 10px;
+        letter-spacing: 2px;
+        opacity: 0.7;
     }
 
-    .selection-grid {
-        background: #f8fafc;
-        border: 2px solid #e2e8f0;
-        border-radius: 18px;
+    .master-title {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        color: var(--text-bright);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
+    }
+
+    /* Stat HUD */
+    .hud-stat-box {
+        background: #000000;
+        border: 1px solid var(--ui-border);
+        border-left: 4px solid var(--neon-blue);
         padding: 20px;
+        box-shadow: inset 0 0 20px rgba(0, 210, 255, 0.05);
+        text-align: center;
+    }
+
+    .hud-stat-box.staff-box {
+        border-left-color: var(--neon-purple);
+        box-shadow: inset 0 0 20px rgba(156, 136, 255, 0.05);
+    }
+
+    /* Terminal Panels */
+    .terminal-panel {
+        background: #000000;
+        border: 1px solid var(--ui-border);
+        border-top: 4px solid var(--neon-yellow);
+        padding: 30px;
+        box-shadow: 0 0 20px rgba(241, 196, 15, 0.05), inset 0 0 20px rgba(241, 196, 15, 0.05);
+        margin-bottom: 40px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .cyber-label {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: var(--text-dim);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .cyber-input, .cyber-select {
+        width: 100%;
+        padding: 12px 15px;
+        background: var(--ui-panel);
+        border: 1px solid var(--ui-border);
+        color: var(--text-bright);
+        font-family: 'Chakra Petch', sans-serif;
+        margin-bottom: 15px;
+        transition: 0.3s;
+        border-radius: 0;
+    }
+
+    .cyber-input:focus, .cyber-select:focus {
+        border-color: var(--neon-yellow);
+        box-shadow: inset 0 0 10px rgba(241, 196, 15, 0.2);
+        outline: none;
+    }
+
+    .cyber-select option {
+        background: var(--ui-bg);
+        color: var(--text-bright);
+    }
+
+    /* Selection Grid & Scrollbars */
+    .selection-grid {
+        background: var(--ui-panel);
+        border: 1px solid var(--ui-border);
+        padding: 15px;
         max-height: 300px;
         overflow-y: auto;
     }
 
+    .selection-grid::-webkit-scrollbar { width: 5px; }
+    .selection-grid::-webkit-scrollbar-track { background: #000; }
+    .selection-grid::-webkit-scrollbar-thumb { background: var(--ui-border); }
+    .selection-grid::-webkit-scrollbar-thumb:hover { background: var(--neon-yellow); }
+
     .student-item {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
+        background: #000;
+        border: 1px solid var(--ui-border);
         padding: 10px 15px;
         margin-bottom: 8px;
         display: flex;
@@ -49,97 +134,160 @@
         gap: 12px;
         cursor: pointer;
         transition: 0.2s;
+        color: var(--text-dim);
     }
 
     .student-item:hover {
-        border-color: var(--accent-navy);
-        background: #f0f7ff;
+        border-color: var(--neon-blue);
+        color: var(--text-bright);
+        box-shadow: inset 0 0 10px rgba(0, 210, 255, 0.1);
     }
 
-    .master-link-btn {
-        background: var(--accent-navy);
-        color: white;
-        border-radius: 15px;
-        padding: 18px;
-        font-weight: 800;
-        text-transform: uppercase;
-        width: 100%;
-        border: none;
-        transition: 0.3s;
-    }
-
-    .master-link-btn:hover {
-        background: #000;
-        transform: translateY(-2px);
-    }
-
-    .roster-card {
-        background: white;
-        border-radius: 24px;
-        border: 1px solid var(--border-color);
-        margin-bottom: 25px;
-        overflow: hidden;
-    }
-
-    .btn-unlink {
-        background: #fee2e2;
-        color: #991b1b;
-        border: none;
-        font-size: 0.65rem;
-        font-weight: 800;
-        padding: 4px 10px;
-        border-radius: 8px;
-        transition: 0.2s;
-    }
-
-    .btn-unlink:hover {
-        background: #740f28;
-        color: white;
+    .student-item input[type="checkbox"], .select-all-header input[type="checkbox"] {
+        accent-color: var(--neon-yellow);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
     }
 
     .select-all-header {
-        background: var(--accent-navy);
-        color: white;
+        background: var(--ui-panel);
+        color: var(--neon-yellow);
+        border: 1px solid var(--neon-yellow);
         padding: 12px 15px;
-        border-radius: 12px;
         margin-bottom: 12px;
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 0.8rem;
-        font-weight: 700;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 900;
         cursor: pointer;
+        transition: 0.2s;
     }
 
-    .search-input {
-        border-radius: 12px;
-        border: 2px solid #e2e8f0;
-        padding: 10px 15px;
-        font-size: 0.85rem;
-        margin-bottom: 15px;
+    .select-all-header:hover {
+        background: var(--neon-yellow);
+        color: #000;
+    }
+
+    /* Action Buttons */
+    .btn-execute {
+        background-color: var(--neon-yellow);
+        color: #000;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        padding: 15px;
+        border: none;
         width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        clip-path: polygon(5% 0, 100% 0, 95% 100%, 0% 100%);
+        transition: 0.3s;
+    }
+
+    .btn-execute:hover {
+        background-color: var(--text-bright);
+        transform: scale(1.02);
+        box-shadow: 0 0 20px rgba(241, 196, 15, 0.6);
+    }
+
+    /* Roster Cards */
+    .roster-card {
+        background: var(--ui-panel);
+        border: 1px solid var(--ui-border);
+        border-top: 2px dashed var(--neon-purple);
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .roster-header {
+        padding: 15px;
+        border-bottom: 1px solid var(--ui-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #000;
+    }
+
+    .operative-badge {
+        background: #000;
+        border: 1px solid var(--ui-border);
+        color: var(--text-bright);
+        font-family: 'Chakra Petch', sans-serif;
+        font-size: 0.75rem;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+    }
+
+    .operative-badge:hover {
+        border-color: var(--neon-red);
+        box-shadow: inset 0 0 10px rgba(255, 71, 87, 0.1);
+    }
+
+    .btn-unlink {
+        background: transparent;
+        color: var(--neon-red);
+        border: none;
+        font-size: 0.9rem;
+        padding: 0 5px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-unlink:hover {
+        color: var(--text-bright);
+        text-shadow: 0 0 8px var(--neon-red);
+    }
+
+    /* Status Tags */
+    .tag-linked {
+        background: rgba(0, 210, 255, 0.1);
+        color: var(--neon-blue);
+        border: 1px solid var(--neon-blue);
+        font-size: 0.6rem;
+        padding: 2px 6px;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .tag-rogue {
+        background: rgba(255, 71, 87, 0.1);
+        color: var(--neon-red);
+        border: 1px solid var(--neon-red);
+        font-size: 0.6rem;
+        padding: 2px 6px;
+        font-family: 'Orbitron', sans-serif;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="admin-hero">
+<div class="header-master">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-7">
-                <span class="admin-badge mb-3" style="background: rgba(255,255,255,0.2); color: white;">Master System Admin</span>
-                <h1 class="display-5 fw-800">Roster Management</h1>
-                <p class="opacity-75">Connect operatives to faculty and monitor institutional growth.</p>
+                <div class="d-inline-block px-3 py-1 mb-3" style="background: #000; border: 1px solid var(--neon-yellow); color: var(--neon-yellow); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">
+                    <i class="fa-solid fa-crown me-2"></i> MASTER_CONTROL_NODE
+                </div>
+                <h1 class="master-title">Roster Management</h1>
+                <p style="color: var(--text-dim); font-family: 'Chakra Petch', sans-serif;">Connect operatives to commanders and monitor institutional growth.</p>
             </div>
             <div class="col-md-5">
-                <div class="glass-stat-card d-flex justify-content-around p-4" style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px;">
-                    <div class="text-center">
-                        <h2 class="fw-800 m-0 text-white">{{ total_students }}</h2>
-                        <small class="opacity-75 fw-bold text-uppercase" style="font-size: 0.65rem;">Students</small>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="hud-stat-box">
+                            <h2 class="m-0" style="color: var(--neon-blue); font-family: 'Orbitron'; font-weight: 900;">{{ total_students }}</h2>
+                            <small style="color: var(--text-dim); font-family: 'Orbitron'; font-size: 0.65rem; letter-spacing: 1px;">ACTIVE_OPERATIVES</small>
+                        </div>
                     </div>
-                    <div class="text-center border-start border-white border-opacity-25 ps-4">
-                        <h2 class="fw-800 m-0 text-white">{{ total_teachers }}</h2>
-                        <small class="opacity-75 fw-bold text-uppercase" style="font-size: 0.65rem;">Staff</small>
+                    <div class="col-6">
+                        <div class="hud-stat-box staff-box">
+                            <h2 class="m-0" style="color: var(--neon-purple); font-family: 'Orbitron'; font-weight: 900;">{{ total_teachers }}</h2>
+                            <small style="color: var(--text-dim); font-family: 'Orbitron'; font-size: 0.65rem; letter-spacing: 1px;">COMMAND_STAFF</small>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -149,35 +297,39 @@
 
 <div class="container" style="position: relative; z-index: 5;">
     
-    <div class="assignment-panel">
+    <div class="terminal-panel">
         <div class="d-flex align-items-center justify-content-between mb-4">
-            <h4 class="fw-800 m-0">Bulk Assignment Protocol</h4>
-            <div class="live-indicator"><div class="pulse-dot"></div> ACTIVE SESSION</div>
+            <h4 class="m-0" style="color: var(--text-bright); font-family: 'Orbitron'; font-weight: 900; text-transform: uppercase;">
+                <i class="fa-solid fa-network-wired me-2"></i> Bulk Assignment Protocol
+            </h4>
+            <div style="color: var(--neon-yellow); font-family: 'Orbitron'; font-size: 0.75rem; font-weight: bold;">
+                <i class="fa-solid fa-circle-dot fa-fade me-1"></i> UPLINK_READY
+            </div>
         </div>
         
         <form action="{% url 'dashboard:assign_student_to_teacher' %}" method="POST">
             {% csrf_token %}
             <div class="row g-4">
                 <div class="col-lg-7">
-                    <label class="form-label fw-800 small text-muted text-uppercase mb-2">1. Select Target Students</label>
+                    <label class="cyber-label"><i class="fa-solid fa-users-crosshairs me-2"></i> 1. Select Target Operatives</label>
                     
-                    <input type="text" id="studentSearch" class="search-input" placeholder="Search by name..." onkeyup="filterStudents()">
+                    <input type="text" id="studentSearch" class="cyber-input" placeholder="Search by callsign..." onkeyup="filterStudents()">
                     
                     <div class="select-all-header" onclick="toggleSelection()">
-                        <input type="checkbox" id="masterCheck" class="form-check-input m-0">
-                        <span>SELECT ALL FILTERED OPERATIVES</span>
+                        <input type="checkbox" id="masterCheck">
+                        <span>SELECT_ALL_FILTERED</span>
                     </div>
                     
                     <div class="selection-grid" id="studentGrid">
                         {% for student in students_list %}
                         <label class="student-item" for="std_{{ student.id }}">
-                            <input type="checkbox" name="student_ids" value="{{ student.id }}" id="std_{{ student.id }}" class="form-check-input student-cb">
+                            <input type="checkbox" name="student_ids" value="{{ student.id }}" id="std_{{ student.id }}" class="student-cb">
                             <div class="d-flex justify-content-between w-100 align-items-center">
-                                <span class="fw-bold student-name">{{ student.username }}</span>
+                                <span class="fw-bold student-name" style="color: var(--text-bright);">{{ student.username }}</span>
                                 {% if student.assigned_teacher %}
-                                    <span class="badge bg-light text-muted" style="font-size: 0.6rem;">Linked: {{ student.assigned_teacher.username }}</span>
+                                    <span class="tag-linked"><i class="fa-solid fa-link"></i> {{ student.assigned_teacher.username }}</span>
                                 {% else %}
-                                    <span class="badge bg-soft-success text-success" style="font-size: 0.6rem; background: #dcfce7;">UNASSIGNED</span>
+                                    <span class="tag-rogue"><i class="fa-solid fa-triangle-exclamation"></i> UNLINKED</span>
                                 {% endif %}
                             </div>
                         </label>
@@ -187,16 +339,17 @@
 
                 <div class="col-lg-5">
                     <div class="mb-4">
-                        <label class="form-label fw-800 small text-muted text-uppercase mb-2">2. Assign to Instructor</label>
-                        <select name="teacher_id" required class="form-select py-3 px-4 border-2" style="border-radius: 15px;">
-                            <option value="" disabled selected>Choose Staff Member...</option>
+                        <label class="cyber-label"><i class="fa-solid fa-user-tie me-2"></i> 2. Assign to Commander</label>
+                        <select name="teacher_id" required class="cyber-select">
+                            <option value="" disabled selected>> Select Command Staff...</option>
                             {% for teacher in teachers_list %}
-                                <option value="{{ teacher.id }}">{{ teacher.username }}</option>
+                                <option value="{{ teacher.id }}">CMD: {{ teacher.username }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="master-link-btn shadow-sm">
-                        Execute Assignment
+                    <button type="submit" class="btn-execute">
+                        <i class="fa-solid fa-satellite-dish mb-2" style="font-size: 1.5rem;"></i><br>
+                        Execute Protocol
                     </button>
                 </div>
             </div>
@@ -204,39 +357,51 @@
     </div>
 
     <div class="mb-4">
-        <h4 class="fw-800 text-dark">Institutional Rosters</h4>
-        <p class="text-muted small">Overview of active staff-student connections.</p>
+        <h4 style="color: var(--text-bright); font-family: 'Orbitron'; font-weight: 900; text-transform: uppercase;">
+            <i class="fa-solid fa-sitemap me-2"></i> Institutional Rosters
+        </h4>
+        <p style="color: var(--text-dim); font-family: 'Chakra Petch', sans-serif;">Live overview of active command structures.</p>
     </div>
 
     <div class="row g-4">
     {% for teacher in teachers_list %}
     <div class="col-lg-6">
-        <div class="roster-card shadow-sm">
-            <div class="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
-                <span class="fw-800 text-navy uppercase small">STAFF: {{ teacher.username }}</span>
-                <span class="time-box">{{ teacher.my_students.count }} LINKED</span>
+        <div class="roster-card">
+            <div class="roster-header">
+                <span style="color: var(--neon-purple); font-family: 'Orbitron'; font-weight: 900; font-size: 0.85rem;">
+                    <i class="fa-solid fa-user-shield me-2"></i> CMD: {{ teacher.username }}
+                </span>
+                <span style="background: rgba(156, 136, 255, 0.1); border: 1px solid var(--neon-purple); color: var(--neon-purple); font-family: 'Orbitron'; font-size: 0.7rem; padding: 3px 8px;">
+                    [{{ teacher.my_students.count }}] LINKED
+                </span>
             </div>
             <div class="p-3">
                 <div class="d-flex flex-wrap gap-2">
                     {% for student in teacher.my_students.all %}
-                    <div class="d-flex align-items-center bg-white border rounded-pill px-3 py-1 shadow-sm">
-                        <span class="fw-bold small me-2" style="font-size: 0.75rem;">{{ student.username }}</span>
+                    <div class="operative-badge">
+                        <i class="fa-solid fa-user-astronaut text-muted"></i>
+                        <span style="font-weight: bold;">{{ student.username }}</span>
                         
-                        <form action="{% url 'dashboard:assign_student_to_teacher' %}" method="POST" class="d-inline">
+                        <form action="{% url 'dashboard:assign_student_to_teacher' %}" method="POST" class="d-inline m-0 p-0">
                             {% csrf_token %}
                             <input type="hidden" name="student_id" value="{{ student.id }}">
-                            <input type="hidden" name="teacher_id" value=""> <button type="submit" class="btn-unlink" title="Remove Student">×</button>
+                            <input type="hidden" name="teacher_id" value=""> 
+                            <button type="submit" class="btn-unlink" title="Sever Link">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
                         </form>
                     </div>
                     {% empty %}
-                    <p class="text-muted small italic p-2 m-0">No active links found.</p>
+                    <p style="color: var(--text-dim); font-family: 'Chakra Petch', sans-serif; font-size: 0.85rem; margin: 0; padding: 10px;">
+                        <i class="fa-solid fa-ghost me-2 opacity-50"></i> Squadron empty. Awaiting assignments.
+                    </p>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
     {% endfor %}
-</div>
+    </div>
 </div>
 
 <script>

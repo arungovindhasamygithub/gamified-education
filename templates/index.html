@@ -1,92 +1,144 @@
 {% extends 'base.html' %}
 
-{% block title %}EcoQuest - Gamified Environmental Education{% endblock %}
+{% block title %}EcoQuest - Mission Briefing{% endblock %}
 
 {% block extra_css %}
 <style>
+    /* Hero Section / Mission Briefing */
     .hero-section {
-        background: linear-gradient(135deg, var(--brand-navy) 0%, #1e3a8a 100%);
+        background: radial-gradient(circle at center, #161b22 0%, #0d1117 100%);
         padding: 100px 0;
-        color: white;
-        border-radius: 0 0 40px 40px;
+        border: 1px solid var(--ui-border);
+        border-bottom: 4px solid var(--neon-green);
         margin-bottom: 60px;
+        position: relative;
+        overflow: hidden;
     }
-    
+
+    .hero-section::before {
+        content: "MAIN_FRAME_ACTIVE";
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-family: 'Orbitron', sans-serif;
+        color: var(--neon-blue);
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        opacity: 0.5;
+    }
+
     .hero-title {
-        font-weight: 800;
-        letter-spacing: -1px;
-        line-height: 1.1;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-bright);
+        text-shadow: 0 0 15px rgba(46, 204, 113, 0.4);
     }
 
-    .feature-card {
-        background: var(--brand-white);
-        border-radius: 20px;
-        padding: 35px;
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
+    /* Highlighted text in hero */
+    .hero-highlight {
+        color: var(--neon-green);
+    }
+
+    /* Quest Cards / Loadout */
+    .quest-card {
+        background: var(--ui-panel);
+        border: 1px solid var(--ui-border);
+        border-left: 4px solid var(--neon-blue);
+        border-radius: 0;
+        padding: 30px;
         height: 100%;
+        transition: 0.3s;
+        position: relative;
     }
 
-    .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(10, 36, 114, 0.08);
-        border-color: var(--brand-navy);
+    .quest-card:hover {
+        transform: translateY(-5px);
+        border-left-color: var(--neon-yellow);
+        box-shadow: 0 10px 20px rgba(0, 210, 255, 0.1);
+        background: #1e242c;
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    }
+
+    /* Quest Progression Steps */
+    .progression-zone {
+        background: #0a0d12;
+        border-top: 2px dashed var(--ui-border);
+        border-bottom: 2px dashed var(--ui-border);
+        padding: 60px 0;
     }
 
     .step-number {
-        font-family: 'Fira Code', monospace;
-        color: var(--brand-navy);
-        background: rgba(10, 36, 114, 0.05);
-        width: 45px;
-        height: 45px;
+        font-family: 'Orbitron', sans-serif;
+        color: #000;
+        background: var(--neon-yellow);
+        width: 50px;
+        height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
-        font-weight: 700;
+        font-weight: 900;
+        font-size: 1.2rem;
         margin-bottom: 20px;
+        clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
     }
 
-    .cta-banner {
-        background-color: var(--brand-white);
-        border: 2px solid var(--brand-navy);
-        border-radius: 24px;
+    .step-title {
+        color: var(--neon-blue);
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    /* Call to Action Terminal */
+    .cta-terminal {
+        background: #000;
+        border: 2px solid var(--neon-green);
         padding: 60px;
         margin: 80px 0;
         text-align: center;
+        position: relative;
+        box-shadow: inset 0 0 30px rgba(46, 204, 113, 0.1);
     }
 
-    .btn-brand-primary {
-        background-color: var(--brand-navy);
-        color: white;
-        padding: 14px 32px;
-        border-radius: 12px;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-block;
-        transition: opacity 0.2s;
+    .cta-terminal::before {
+        content: "AWAITING USER INPUT...";
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--neon-green);
+        color: #000;
+        padding: 2px 15px;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
     }
 
-    .btn-brand-outline {
-        border: 2px solid white;
-        color: white;
-        padding: 12px 30px;
-        border-radius: 12px;
-        font-weight: 700;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.2s;
-    }
-
-    .btn-brand-outline:hover {
-        background: white;
-        color: var(--brand-navy);
-    }
-
-    footer {
-        border-top: 1px solid var(--border-color);
+    /* Footer Terminal Style */
+    .terminal-footer {
+        border-top: 1px solid var(--ui-border);
         padding-top: 40px;
         margin-top: 60px;
+        color: var(--text-dim);
+    }
+
+    .footer-link {
+        color: var(--text-dim);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        transition: color 0.2s;
+        text-decoration: none;
+    }
+
+    .footer-link:hover {
+        color: var(--neon-blue);
     }
 </style>
 {% endblock %}
@@ -94,14 +146,16 @@
 {% block content %}
 <header class="hero-section">
     <div class="container text-center">
-        <h1 class="display-3 hero-title mb-4">Gamified Environmental<br>Education Platform</h1>
-        <p class="lead mb-5 opacity-75 max-w-2xl mx-auto">
-            Empowering students and administrators with dynamic, engaging learning tools to protect our planet.
+        <h1 class="display-4 hero-title mb-4">Protect the <span class="hero-highlight">Planet</span><br>Level Up Your Stats</h1>
+        <p class="lead mb-5 max-w-2xl mx-auto" style="color: var(--text-dim);">
+            Initiate protocol: Empowering operatives with tactical learning simulations to combat environmental degradation.
         </p>
         {% if not user.is_authenticated %}
-        <div class="d-flex gap-3 justify-content-center">
-            <a href="{% url 'register' %}" class="btn btn-light px-5 py-3 fw-bold shadow-sm" style="color: var(--brand-navy); border-radius: 12px;">Get Started</a>
-            <a href="{% url 'login' %}" class="btn-brand-outline">Sign In</a>
+        <div class="d-flex gap-4 justify-content-center">
+            <a href="{% url 'register' %}" class="btn-action text-decoration-none" style="padding: 15px 40px; font-size: 1.1rem;">INITIATE SEQUENCE</a>
+            <a href="{% url 'login' %}" class="text-white text-decoration-none fw-bold d-flex align-items-center" style="letter-spacing: 1px;">
+                <i class="bi bi-box-arrow-in-right me-2 text-info"></i> ACCESS TERMINAL
+            </a>
         </div>
         {% endif %}
     </div>
@@ -109,75 +163,74 @@
 
 <div class="container mb-5">
     <div class="text-center mb-5">
-        <span class="admin-badge">Core Capabilities</span>
-        <h2 class="fw-800 mt-3" style="color: var(--brand-navy); font-weight: 800;">Platform Features</h2>
+        <span class="badge bg-dark border border-secondary text-info px-3 py-2 mb-2" style="font-family: 'Orbitron';">CORE CAPABILITIES</span>
+        <h2 class="hero-title mt-2 fs-2">Platform Loadout</h2>
     </div>
     
     <div class="row g-4">
         <div class="col-lg-4 col-md-6">
-            <div class="feature-card">
-                <div class="stat-icon icon-live mb-4">📚</div>
-                <h3 class="fw-bold h4 mb-3">Interactive Learning</h3>
-                <p class="text-muted">Master waste management, climate change, and conservation through high-impact quizzes.</p>
+            <div class="quest-card">
+                
+                <h3 class="fw-bold h5 mb-3 text-white">Tactical Simulations</h3>
+                <p style="color: var(--text-dim); font-size: 0.95rem;">Master waste management, climate change, and conservation through high-impact data quizzes.</p>
             </div>
         </div>
         <div class="col-lg-4 col-md-6">
-            <div class="feature-card">
-                <div class="stat-icon icon-present mb-4">💎</div>
-                <h3 class="fw-bold h4 mb-3">Reward System</h3>
-                <p class="text-muted">Accumulate points for precision and level up your profile as you master the curriculum.</p>
+            <div class="quest-card" style="border-left-color: var(--neon-yellow);">
+              
+                <h3 class="fw-bold h5 mb-3 text-white">XP & Ranking System</h3>
+                <p style="color: var(--text-dim); font-size: 0.95rem;">Accumulate points for precision. Level up your operative profile as you master the curriculum.</p>
             </div>
         </div>
         <div class="col-lg-4 col-md-12">
-            <div class="feature-card">
-                <div class="stat-icon icon-total mb-4">🌍</div>
-                <h3 class="fw-bold h4 mb-3">Real-World Missions</h3>
-                <p class="text-muted">Submit evidence for environmental challenges and earn exclusive digital badges.</p>
+            <div class="quest-card" style="border-left-color: var(--neon-green);">
+              
+                <h3 class="fw-bold h5 mb-3 text-white">Field Missions</h3>
+                <p style="color: var(--text-dim); font-size: 0.95rem;">Submit evidence for real-world environmental operations and earn exclusive digital insignias.</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="container-fluid py-5" style="background-color: #f1f5f9;">
+<div class="container-fluid progression-zone">
     <div class="container py-4">
-        <h2 class="text-center fw-800 mb-5" style="color: var(--brand-navy); font-weight: 800;">Execution Path</h2>
+        <h2 class="text-center hero-title fs-2 mb-5">Execution Protocol</h2>
         <div class="row g-5">
             <div class="col-md-4">
                 <div class="step-number">01</div>
-                <h4 class="fw-bold">Initialize Profile</h4>
-                <p class="text-muted">Create a secure student account to track your environmental impact and ranking.</p>
+                <h4 class="step-title h5">Initialize Operative</h4>
+                <p style="color: var(--text-dim);">Establish a secure datalink account to track your environmental impact metrics and global ranking.</p>
             </div>
             <div class="col-md-4">
                 <div class="step-number">02</div>
-                <h4 class="fw-bold">Engagement</h4>
-                <p class="text-muted">Participate in daily technical quizzes and practical field-based eco-missions.</p>
+                <h4 class="step-title h5">Engage Targets</h4>
+                <p style="color: var(--text-dim);">Deploy into daily technical quizzes and execute practical field-based ecological operations.</p>
             </div>
             <div class="col-md-4">
                 <div class="step-number">03</div>
-                <h4 class="fw-bold">Leaderboard Status</h4>
-                <p class="text-muted">Ascend through ranks and compete for top position on the global leaderboard.</p>
+                <h4 class="step-title h5">Achieve Supremacy</h4>
+                <p style="color: var(--text-dim);">Ascend through operative tiers and dominate the global leaderboard network.</p>
             </div>
         </div>
     </div>
 </div>
 
 <div class="container">
-    <div class="cta-banner">
-        <div class="pulse-dot mx-auto mb-3"></div>
-        <h2 class="fw-800 mb-3" style="color: var(--brand-navy); font-weight: 800;">Ready to Impact the World?</h2>
-        <p class="text-muted mb-4 fs-5">Join our network of students committed to real-world environmental change.</p>
+    <div class="cta-terminal">
+        <h2 class="hero-title fs-2 mb-3">Ready to Deploy?</h2>
+        <p class="mb-4 fs-5" style="color: var(--text-dim);">Join the global network of operatives executing real-world environmental change.</p>
         {% if not user.is_authenticated %}
-            <a href="{% url 'register' %}" class="btn-brand-primary">Join the Movement Now</a>
+            <a href="{% url 'register' %}" class="btn-action text-decoration-none d-inline-block mt-2">ACCEPT MISSION</a>
         {% endif %}
     </div>
 </div>
 
-<footer class="container text-center py-5">
-    <p class="text-muted small mb-2">&copy; 2026 EcoQuest Platform. All rights reserved.</p>
+<footer class="container text-center terminal-footer pb-4">
+    <p class="small mb-3" style="font-family: 'Orbitron';">&copy; 2026 ECOQUEST SECURE NETWORK. ALL RIGHTS RESERVED.</p>
     <div class="d-flex justify-content-center gap-4">
-        <a href="#" class="text-decoration-none text-muted small hover-navy">Privacy</a>
-        <a href="#" class="text-decoration-none text-muted small hover-navy">Terms</a>
-        <a href="#" class="text-decoration-none text-muted small hover-navy">Support</a>
+        <a href="#" class="footer-link">Privacy_Policy</a>
+        <a href="#" class="footer-link">Terms_Of_Service</a>
+        <a href="#" class="footer-link">Comms_Support</a>
     </div>
 </footer>
 {% endblock %}
