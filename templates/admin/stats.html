@@ -1,0 +1,53 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Statistics | EcoQuest Admin{% endblock %}
+
+{% block content %}
+<h1>EcoQuest Statistics</h1>
+
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h3 style="color: #2d6a4f;">New Users (30 days)</h3>
+        <p style="font-size: 2rem; margin: 0;">{{ new_users_30d }}</p>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h3 style="color: #2d6a4f;">Quizzes Taken (30 days)</h3>
+        <p style="font-size: 2rem; margin: 0;">{{ quizzes_30d }}</p>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+        <h3 style="color: #2d6a4f;">Average Score</h3>
+        <p style="font-size: 2rem; margin: 0;">{{ avg_score|floatformat:1 }} pts</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div style="background: white; padding: 20px; border-radius: 12px;">
+        <h3 style="color: #2d6a4f;">Users by Role</h3>
+        <table style="width: 100%;">
+            {% for item in users_by_role %}
+            <tr>
+                <td>{{ item.role|title }}</td>
+                <td><strong>{{ item.count }}</strong></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    <div style="background: white; padding: 20px; border-radius: 12px;">
+        <h3 style="color: #2d6a4f;">Quizzes by Category</h3>
+        <table style="width: 100%;">
+            {% for item in quizzes_by_category %}
+            <tr>
+                <td>{{ item.category__name|default:"Uncategorized" }}</td>
+                <td><strong>{{ item.count }}</strong></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2">No data available</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quiz Assessment | EcoQuest{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 max-w-3xl">
+    <div class="card shadow-2xl border-0 bg-white rounded-xl overflow-hidden relative">
+        <div class="bg-slate-800 text-white px-6 py-4 flex justify-between items-center border-b-4 border-[#1b4332]">
+            <span id="qTopic" class="font-bold tracking-wider text-sm uppercase">
+                MODULE: {{ question.category.name }}
+            </span>
+            <span id="qCount" class="font-bold tracking-wider text-sm uppercase text-gray-300">
+                STAGE {{ current_index }} OF {{ total_questions }}
+            </span>
+        </div>
+        
+        <div class="w-full bg-gray-200 h-2">
+            <div id="quizProgress" class="bg-[#1b4332] h-2 transition-all duration-500" style="width: {{ progress }}%;"></div>
+        </div>
+        
+        <div class="p-8">
+            <h2 id="quizQuestionText" class="text-2xl font-bold text-gray-800 mb-8 text-center tracking-tight">{{ question.text }}</h2>
+            
+            <div id="quizOptions" class="grid gap-4">
+                {% for option in question.get_options %}
+                    <button class="option-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-[#1b4332] hover:bg-gray-50 transition transform hover:-translate-y-1 focus:outline-none flex items-center font-semibold text-gray-700" 
+                            onclick="selectAnswer({{ forloop.counter0 }}, this, {{ question.id }})"
+                            data-letter="{{ forloop.counter0|add:'65'|make_list|first }}">
+                        <span class="w-8 h-8 bg-gray-100 text-[#1b4332] rounded flex items-center justify-center font-bold mr-4 border border-gray-300 shadow-sm">
+                            {{ forloop.counter0|add:'65'|make_list|first }}
+                        </span>
+                        {{ option }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-6 text-sm font-semibold text-gray-500 uppercase tracking-widest">
+        SYSTEM INPUT: PRESS 1-4 OR A-D TO SELECT
+    </div>
+</div>
+
+<script>
+let currentQuestionId = {{ question.id }};
+let sessionActive = true;
+let score = 0;
+
+document.addEventListener('keydown', function(event) {
+    if (!sessionActive) return;
+    
+    const key = event.key;
+    const optionButtons = document.querySelectorAll('.option-btn');
+    
+    if (key >= '1' && key <= '4') {
+        const index = parseInt(key) - 1;
+        if (index < optionButtons.length && !optionButtons[index].disabled) {
+            optionButtons[index].click();
+        }
+    } else if (key.toLowerCase() >= 'a' && key.toLowerCase() <= 'd') {
+        const index = key.toLowerCase().charCodeAt(0) - 'a'.charCodeAt(0);
+        if (index < optionButtons.length && !optionButtons[index].disabled) {
+            optionButtons[index].click();
+        }
+    }
+});
+
+function selectAnswer(index, btnElement, questionId) {
+    if (!sessionActive) return;
+    
+    const buttons = document.querySelectorAll('.option-btn');
+    
+    buttons.forEach(b => {
+        b.disabled = true;
+        b.classList.remove('hover:-translate-y-1', 'hover:border-[#1b4332]', 'hover:bg-gray-50');
+    });
+    sessionActive = false;
+    
+    btnElement.classList.add('scale-95');
+    
+    fetch('{% url "quizzes:submit_answer" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `question_id=${questionId}&answer=${index}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.correct) {
+            btnElement.classList.remove('border-gray-200');
+            btnElement.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+            score += 20;
+            showScorePopup(20, true);
+        } else {
+            btnElement.classList.remove('border-gray-200');
+            btnElement.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+            
+            buttons[data.correct_answer].classList.remove('border-gray-200');
+            buttons[data.correct_answer].classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+            showScorePopup(0, false);
+        }
+        
+        const scoreElement = document.getElementById('currentScore');
+        if (scoreElement) {
+            scoreElement.textContent = score;
+        }
+        
+        setTimeout(() => {
+            fetch('{% url "quizzes:next_question" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(res => res.json())
+            .then(nextData => {
+                if (nextData.completed) {
+                    showCompletionAnimation();
+                    setTimeout(() => {
+                        window.location.href = '{% url "quizzes:quiz_complete" %}';
+                    }, 1500);
+                } else {
+                    updateQuestion(nextData);
+                }
+            });
+        }, 1500);
+    });
+}
+
+function showScorePopup(points, isCorrect) {
+    const popup = document.createElement('div');
+    popup.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-bold z-50 transition-all duration-500 pointer-events-none';
+    
+    if (isCorrect) {
+        popup.classList.add('text-green-500');
+        popup.textContent = `+${points} XP`;
+    } else {
+        popup.classList.add('text-red-500');
+        popup.textContent = 'SYSTEM ERROR';
+    }
+    
+    document.body.appendChild(popup);
+    
+    setTimeout(() => {
+        popup.classList.add('opacity-0', '-translate-y-24');
+    }, 50);
+    
+    setTimeout(() => {
+        popup.remove();
+    }, 1000);
+}
+
+function showCompletionAnimation() {
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-slate-900 bg-opacity-90 flex flex-col items-center justify-center z-50';
+    overlay.innerHTML = '<div class="w-16 h-16 border-4 border-[#1b4332] border-t-transparent rounded-full animate-spin"></div><p class="text-white mt-8 text-xl font-bold tracking-widest uppercase">Compiling Results...</p>';
+    document.body.appendChild(overlay);
+}
+
+function updateQuestion(nextData) {
+    const questionEl = document.getElementById('quizQuestionText');
+    questionEl.style.opacity = '0';
+    
+    setTimeout(() => {
+        questionEl.innerText = nextData.question.text;
+        questionEl.style.transition = 'opacity 0.5s';
+        questionEl.style.opacity = '1';
+    }, 200);
+    
+    document.getElementById('qTopic').innerText = `MODULE: ${nextData.question.category || '{{ question.category.name }}'}`;
+    document.getElementById('qCount').innerText = `STAGE ${nextData.question.current_index} OF ${nextData.question.total}`;
+    
+    const progress = ((nextData.question.current_index - 1) / nextData.question.total) * 100;
+    document.getElementById('quizProgress').style.width = `${progress}%`;
+    
+    const optionsDiv = document.getElementById('quizOptions');
+    optionsDiv.style.opacity = '0';
+    
+    setTimeout(() => {
+        optionsDiv.innerHTML = '';
+        nextData.question.options.forEach((opt, idx) => {
+            const letter = String.fromCharCode(65 + idx);
+            optionsDiv.innerHTML += `
+                <button class="option-btn w-full text-left p-4 border-2 border-gray-200 rounded-lg hover:border-[#1b4332] hover:bg-gray-50 transition transform hover:-translate-y-1 focus:outline-none flex items-center font-semibold text-gray-700" 
+                        onclick="selectAnswer(${idx}, this, ${nextData.question.id})"
+                        data-letter="${letter}">
+                    <span class="w-8 h-8 bg-gray-100 text-[#1b4332] rounded flex items-center justify-center font-bold mr-4 border border-gray-300 shadow-sm">
+                        ${letter}
+                    </span>
+                    ${opt}
+                </button>
+            `;
+        });
+        optionsDiv.style.transition = 'opacity 0.5s';
+        optionsDiv.style.opacity = '1';
+        sessionActive = true;
+    }, 200);
+}
+</script>
+{% endblock %}

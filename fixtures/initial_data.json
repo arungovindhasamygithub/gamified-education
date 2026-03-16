@@ -1,0 +1,48 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+      "username": "admin",
+      "email": "admin@ecoquest.com",
+      "password": "admin123",  
+      "role": "admin",
+      "school": "EcoQuest HQ",
+      "grade": "Admin",
+      "points": 0,
+      "level": 1,
+      "is_superuser": true,
+      "is_staff": true,
+      "is_active": true
+    }
+  },
+  {
+    "model": "quizzes.category",
+    "pk": 1,
+    "fields": {
+      "name": "Waste Management",
+      "description": "Learn about proper waste disposal and recycling"
+    }
+  },
+  {
+    "model": "quizzes.category",
+    "pk": 2,
+    "fields": {
+      "name": "Climate Change",
+      "description": "Understanding global climate challenges"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 1,
+    "fields": {
+      "category": 1,
+      "text": "Which item is compostable?",
+      "option1": "Plastic cup",
+      "option2": "Apple core",
+      "option3": "Aluminum foil",
+      "option4": "Glass bottle",
+      "correct_answer": 1
+    }
+  }
+]

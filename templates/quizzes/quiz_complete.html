@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Assessment Results | EcoQuest{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-12 max-w-2xl">
+    <div class="card shadow-2xl border-0 bg-white rounded-xl overflow-hidden">
+        
+        <div class="bg-slate-800 text-white px-6 py-5 border-b-4 border-[#1b4332] text-center">
+            <h1 class="text-2xl font-bold tracking-widest uppercase m-0">Assessment Complete</h1>
+        </div>
+        
+        <div class="p-10 bg-gray-50 border-b border-gray-200 text-center">
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Total Yield</div>
+            <div class="text-7xl font-bold text-[#1b4332] tabular-nums" id="scoreDisplay">0</div>
+            <div class="text-sm font-semibold text-gray-600 mt-2 tracking-wider">POINTS ACQUIRED</div>
+        </div>
+
+        <div class="grid grid-cols-3 divide-x divide-gray-200 border-b border-gray-200 bg-white">
+            <div class="p-4 text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Module</div>
+                <div class="font-semibold text-gray-800 truncate px-2">{{ category }}</div>
+            </div>
+            <div class="p-4 text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Capacity</div>
+                <div class="font-semibold text-gray-800">{{ total_possible }} pts</div>
+            </div>
+            <div class="p-4 text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Accuracy</div>
+                <div class="font-semibold text-[#1b4332]">{{ percentage|floatformat:1 }}%</div>
+            </div>
+        </div>
+
+        {% if new_level > request.user.level|add:0 %}
+        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 m-6 shadow-sm rounded-r">
+            <p class="font-bold text-sm tracking-wider uppercase text-emerald-800 m-0">System Rank Upgraded</p>
+            <p class="text-sm text-emerald-700 m-0 mt-1">Authorization level increased to Level {{ new_level }}.</p>
+        </div>
+        {% endif %}
+
+        <div class="p-6 bg-white">
+            <h3 class="text-lg font-bold text-[#1b4332] mb-4 border-b border-gray-100 pb-2 tracking-tight">Performance Metrics</h3>
+            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <span class="font-semibold uppercase tracking-wide">Cumulative Points: {{ total_points }}</span>
+                <span class="font-semibold uppercase tracking-wide">Current Level: {{ new_level }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2 overflow-hidden">
+                <div class="bg-[#1b4332] h-2.5 rounded-full transition-all duration-1000 ease-out" style="width: 0%" id="accuracyBar" data-target="{{ percentage }}"></div>
+            </div>
+        </div>
+
+        <div class="p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'dashboard:student_dashboard' %}" class="bg-white text-gray-700 border border-gray-300 font-bold py-3 px-6 rounded hover:bg-gray-100 transition shadow-sm text-sm uppercase tracking-wider no-underline text-center w-full sm:w-auto">
+                Return to Dashboard
+            </a>
+            <a href="{% url 'quizzes:start_quiz' question.category.id %}" class="bg-[#1b4332] text-white border border-[#1b4332] font-bold py-3 px-6 rounded hover:bg-[#143628] transition shadow-sm text-sm uppercase tracking-wider no-underline text-center w-full sm:w-auto">
+                Re-Initialize Module
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+const scoreElement = document.getElementById('scoreDisplay');
+const targetScore = {{ score }};
+const duration = 1500;
+const frames = 60;
+const increment = targetScore / (duration / (1000 / frames));
+let currentScore = 0;
+
+function animateScore() {
+    if (currentScore < targetScore) {
+        currentScore = Math.min(currentScore + increment, targetScore);
+        scoreElement.textContent = Math.round(currentScore);
+        requestAnimationFrame(animateScore);
+    } else {
+        scoreElement.textContent = targetScore;
+    }
+}
+
+setTimeout(() => {
+    animateScore();
+    const accuracyBar = document.getElementById('accuracyBar');
+    if (accuracyBar) {
+        accuracyBar.style.width = accuracyBar.getAttribute('data-target') + '%';
+    }
+}, 300);
+</script>
+{% endblock %}

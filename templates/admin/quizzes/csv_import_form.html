@@ -1,0 +1,189 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .import-container {
+        max-width: 800px;
+        margin: 30px auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .import-header {
+        background: linear-gradient(135deg, #2d6a4f, #52b788);
+        color: white;
+        padding: 25px 30px;
+    }
+    
+    .import-header h2 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+    
+    .import-header p {
+        margin: 10px 0 0;
+        opacity: 0.9;
+    }
+    
+    .import-body {
+        padding: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 25px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: #2b2d42;
+        font-size: 1rem;
+    }
+    
+    .form-group input[type="file"] {
+        width: 100%;
+        padding: 15px;
+        border: 2px dashed #52b788;
+        border-radius: 8px;
+        background: #f8f9fa;
+        cursor: pointer;
+    }
+    
+    .form-group input[type="file"]:hover {
+        border-color: #2d6a4f;
+        background: #f0f7f0;
+    }
+    
+    .help-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 8px;
+    }
+    
+    .submit-row {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .submit-row input {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .submit-row input[type="submit"] {
+        background: #2d6a4f;
+        color: white;
+    }
+    
+    .submit-row input[type="submit"]:hover {
+        background: #52b788;
+        transform: translateY(-2px);
+    }
+    
+    .submit-row input[type="button"] {
+        background: #e07a5f;
+        color: white;
+    }
+    
+    .submit-row input[type="button"]:hover {
+        background: #d06b4f;
+        transform: translateY(-2px);
+    }
+    
+    .template-section {
+        background: #f4f1de;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 30px;
+    }
+    
+    .template-section h4 {
+        margin: 0 0 15px;
+        color: #2b2d42;
+    }
+    
+    .csv-example {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        overflow-x: auto;
+        border: 1px solid #ddd;
+    }
+    
+    .note {
+        background: #e8f4fd;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="import-container">
+    <div class="import-header">
+        <h2>📥 Import Questions from CSV</h2>
+        <p>Upload a CSV file to bulk import questions</p>
+    </div>
+    
+    <div class="import-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="{{ action }}">
+            <input type="hidden" name="apply" value="yes">
+            
+            <div class="form-group">
+                <label>Select CSV File:</label>
+                <input type="file" name="csv_file" accept=".csv" required>
+                <div class="help-text">Maximum file size: 10MB</div>
+            </div>
+            
+            <div class="note">
+                <strong>📌 CSV Format Required:</strong>
+                <p style="margin: 5px 0 0;">Your CSV must have these columns exactly:</p>
+            </div>
+            
+            <div class="csv-example">
+Category,Question Text,Option 1,Option 2,Option 3,Option 4,Correct Answer<br>
+Waste Management,"What is recyclable?",Plastic,Glass,Paper,Metal,2<br>
+Climate Change,"Main greenhouse gas?",Oxygen,"Carbon Dioxide",Nitrogen,Hydrogen,1
+            </div>
+            
+            <div class="help-text">
+                <strong>Note:</strong> Correct Answer should be 0, 1, 2, or 3 where:<br>
+                0 = Option 1, 1 = Option 2, 2 = Option 3, 3 = Option 4
+            </div>
+            
+            <div class="submit-row">
+                <input type="submit" value="📤 Import Questions">
+                <input type="button" value="Cancel" onclick="window.location.href='..'">
+            </div>
+        </form>
+        
+        <div class="template-section">
+            <h4>📋 Quick Tips:</h4>
+            <ul style="margin: 0; padding-left: 20px;">
+                <li>First row must be column headers</li>
+                <li>Categories will be created automatically if they don't exist</li>
+                <li>Maximum 1000 rows per import</li>
+                <li>Use quotes for text containing commas</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

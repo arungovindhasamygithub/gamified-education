@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Instructor Dashboard | EcoQuest{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    
+    <div class="bg-slate-800 text-white p-6 rounded-lg shadow-sm mb-8 border-l-4 border-[#1b4332] flex justify-between items-center flex-wrap gap-4">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight m-0">System Administrator: {{ user.username }}</h1>
+            <p class="text-gray-300 text-sm m-0 mt-1">Monitor cohort progression and manage instructional modules.</p>
+        </div>
+        <div class="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+            {{ current_date|date:"l, F j, Y" }}
+        </div>
+    </div>
+
+    <div class="row g-4 mb-8">
+        <div class="col-md-3 col-sm-6">
+            <div class="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Total Enrolled</div>
+                <div class="text-3xl font-bold text-[#1b4332]">{{ total_students }}</div>
+                <div class="text-xs text-gray-400 mt-1 uppercase font-semibold">Active Users</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Mean Accumulation</div>
+                <div class="text-3xl font-bold text-[#1b4332]">{{ avg_points|floatformat:1 }}</div>
+                <div class="text-xs text-gray-400 mt-1 uppercase font-semibold">Points Per User</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Assessments</div>
+                <div class="text-3xl font-bold text-[#1b4332]">{{ total_quizzes }}</div>
+                <div class="text-xs text-gray-400 mt-1 uppercase font-semibold">Modules Completed</div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="bg-white border border-gray-200 p-4 rounded-lg shadow-sm text-center">
+                <div class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Daily Traffic</div>
+                <div class="text-3xl font-bold text-[#1b4332]">{{ active_today|default:"0" }}</div>
+                <div class="text-xs text-gray-400 mt-1 uppercase font-semibold">Active Sessions</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-6">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border border-gray-200 bg-white rounded-lg">
+                <div class="flex justify-between items-center p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-[#1b4332] m-0 tracking-tight">Cohort Performance Metrics</h3>
+                    <a href="#" class="text-xs font-bold text-[#1b4332] hover:underline uppercase tracking-wider">Export Dataset &rarr;</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="table table-hover align-middle m-0 text-sm border-0">
+                        <thead class="bg-gray-50 text-gray-600 font-semibold uppercase text-xs tracking-wider">
+                            <tr>
+                                <th class="py-3 px-4 border-b border-gray-200">System ID</th>
+                                <th class="py-3 px-4 border-b border-gray-200">Level</th>
+                                <th class="py-3 px-4 border-b border-gray-200">Total Yield</th>
+                                <th class="py-3 px-4 border-b border-gray-200">Classification</th>
+                                <th class="py-3 px-4 border-b border-gray-200">Last Ping</th>
+                                <th class="py-3 px-4 border-b border-gray-200">Completion</th>
+                                <th class="py-3 px-4 border-b border-gray-200 text-right">Options</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            {% for student in student_progress %}
+                            <tr>
+                                <td class="py-3 px-4 font-bold text-gray-900">{{ student.name }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="bg-gray-100 border border-gray-300 px-2 py-1 rounded text-xs font-semibold">
+                                        Lvl {{ student.level }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 font-bold text-[#1b4332]">{{ student.points }}</td>
+                                <td class="py-3 px-4">
+                                    {% if student.tier == 'Gold' %}
+                                        <span class="bg-yellow-100 text-yellow-800 border border-yellow-200 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Tier 1</span>
+                                    {% elif student.tier == 'Silver' %}
+                                        <span class="bg-gray-100 text-gray-800 border border-gray-300 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Tier 2</span>
+                                    {% else %}
+                                        <span class="bg-orange-50 text-orange-800 border border-orange-200 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">Tier 3</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4 text-xs">{{ student.last_active|timesince }} ago</td>
+                                <td class="py-3 px-4 w-32">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5">
+                                            <div class="bg-[#1b4332] h-1.5 rounded-full" style="width: {{ student.progress }}%;"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold">{{ student.progress }}%</span>
+                                    </div>
+                                </td>
+                                <td class="py-3 px-4 text-right">
+                                    <a href="#" class="bg-white text-[#1b4332] border border-[#1b4332] hover:bg-gray-50 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider no-underline transition">Inspect</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-10 bg-gray-50 text-gray-500">
+                                    <div class="font-bold uppercase tracking-wider mb-1">No Data Available</div>
+                                    <div class="text-sm">Cohort metrics will populate upon user enrollment.</div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border border-gray-200 bg-white rounded-lg h-full">
+                <div class="flex justify-between items-center p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-bold text-[#1b4332] m-0 tracking-tight">System Logs</h3>
+                    <a href="#" class="text-xs font-bold text-[#1b4332] hover:underline uppercase tracking-wider">Filter</a>
+                </div>
+                <div class="max-h-[500px] overflow-y-auto p-2">
+                    {% for activity in recent_activities %}
+                    <div class="p-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition rounded flex gap-3 items-start">
+                        <div class="w-8 h-8 rounded bg-[#1b4332] text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                            INFO
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-800 text-sm">{{ activity.description }}</div>
+                            <div class="text-xs text-gray-500 font-semibold mt-1 uppercase tracking-wider">
+                                {% if activity.time %}
+                                    {{ activity.time|timesince }} ago
+                                {% else %}
+                                    Real-time
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-10 text-gray-500">
+                        <div class="font-bold uppercase tracking-wider mb-1">System Idle</div>
+                        <div class="text-sm">No recent logs recorded.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+    }, 100);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard | EcoQuest{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="grid-2" style="margin-bottom: 20px;">
+        <div class="card" style="text-align: center; border-left: 5px solid var(--primary);">
+            <h3>Total Registered Students</h3>
+            <h1 id="statTotalStudents" style="margin:0;">{{ total_students }}</h1>
+        </div>
+        <div class="card" style="text-align: center; border-left: 5px solid var(--accent);">
+            <h3>Active Questions in Bank</h3>
+            <h1 id="statTotalQuestions" style="margin:0;">{{ total_questions }}</h1>
+        </div>
+    </div>
+
+    <div class="card" style="background: #f4f1de;">
+        <h3>➕ Add New Quiz Question</h3>
+        <p>Categories entered here will automatically appear on the Student Sidebar.</p>
+        <form method="post" action="{% url 'quizzes:manage_questions' %}" class="grid-2">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Category</label>
+                <select name="category" required>
+                    {% for category in questions %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Question Text</label>
+                <input type="text" name="text" required>
+            </div>
+            <div class="form-group"><label>Option 1</label><input type="text" name="option1" required></div>
+            <div class="form-group"><label>Option 2</label><input type="text" name="option2" required></div>
+            <div class="form-group"><label>Option 3</label><input type="text" name="option3" required></div>
+            <div class="form-group"><label>Option 4</label><input type="text" name="option4" required></div>
+            <div class="form-group">
+                <label>Correct Answer</label>
+                <select name="correct_answer" required>
+                    <option value="0">Option 1</option>
+                    <option value="1">Option 2</option>
+                    <option value="2">Option 3</option>
+                    <option value="3">Option 4</option>
+                </select>
+            </div>
+            <div style="display: flex; align-items: flex-end;">
+                <button type="submit" style="margin-bottom: 15px;">Save Question</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="grid-2">
+        <div class="card" style="overflow-x: auto;">
+            <h3>User Directory</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>School</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.role|upper }}</td>
+                        <td>{{ u.school|default:'N/A' }}</td>
+                        <td>{{ u.points }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card" style="overflow-x: auto;">
+            <h3>Question Database</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Question</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in questions %}
+                        {% for question in category.questions.all %}
+                        <tr>
+                            <td>{{ category.name }}</td>
+                            <td>{{ question.text|truncatechars:50 }}</td>
+                            <td>
+                                <a href="{% url 'quizzes:delete_question' question.id %}" 
+                                   class="button danger" 
+                                   style="padding: 5px 10px; margin:0; text-decoration: none; color: white; background-color: var(--danger);"
+                                   onclick="return confirm('Delete this question?')">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">No questions in this category.</td>
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

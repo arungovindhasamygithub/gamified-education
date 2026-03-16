@@ -1,0 +1,15 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="{% url 'admin:dashboard_mission_changelist' %}?is_active__exact=1" class="button" style="background: #2a9d8f;">
+            View Active Missions
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'admin:dashboard_missionsubmission_changelist' %}?status__exact=pending" class="button" style="background: #f39c12;">
+            Pending Submissions
+        </a>
+    </li>
+{% endblock %}
