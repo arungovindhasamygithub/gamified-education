@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from django.contrib.messages import constants as messages
-import dj_database_url # Add this to requirements.txt
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -60,15 +60,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecoquest.wsgi.application'
 
-# DATABASE
-# This setup uses PostgreSQL on Render, but falls back to SQLite for local development
+
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600
     )
 }
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
