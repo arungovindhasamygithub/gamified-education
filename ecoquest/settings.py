@@ -8,8 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ======================
 # SECURITY
 # ======================
+# Pulls from environment variable in production, falls back to this string locally
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-for-local-only')
 
+# Safely converts the environment variable string 'True'/'False' into a Python boolean
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
@@ -17,6 +19,12 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1'
 ]
+
+# Render automatically sets this environment variable. 
+# Adding it ensures Render's internal routing works flawlessly.
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # ======================
 # INSTALLED APPS
@@ -43,7 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 
-    # WhiteNoise MUST be just below SecurityMiddleware
+    # WhiteNoise MUST be exactly here (just below SecurityMiddleware)
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -78,11 +86,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecoquest.wsgi.application'
 
 # ======================
-# DATABASE
+# DATABASE (UPDATED FOR RENDER)
 # ======================
 DATABASES = {
+    # dj_database_url will automatically look for the 'DATABASE_URL' environment 
+    # variable on Render. If it doesn't find it (like on your local PC), 
+    # it uses the local SQLite file.
     'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        default=os.environ.get('DATABASE_URL', f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
         conn_max_age=600
     )
 }
@@ -106,7 +117,7 @@ USE_I18N = True
 USE_TZ = True
 
 # ======================
-# STATIC FILES (FIXED ✅)
+# STATIC FILES
 # ======================
 STATIC_URL = '/static/'
 
@@ -116,7 +127,7 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise (important for Render)
+# WhiteNoise storage engine for compression and caching
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ======================
