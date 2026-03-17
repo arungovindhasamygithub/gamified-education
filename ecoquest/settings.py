@@ -15,6 +15,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key-for-loca
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
+    'ecochallengehub.online',
+    'www.ecochallengehub.online',
     'gamified-education.onrender.com',
     'localhost',
     '127.0.0.1'
